@@ -6,7 +6,10 @@ import '../services/coffee_price_api.dart';
 
 /// Biểu đồ giá trung bình nội địa 7 ngày (đặt dưới bảng giá trong 1 màn hình).
 class SevenDayChart extends StatefulWidget {
-  const SevenDayChart({super.key});
+  const SevenDayChart({super.key, this.chartHeight = 180});
+
+  /// Chiều cao vùng vẽ đồ thị (px logical).
+  final double chartHeight;
 
   @override
   State<SevenDayChart> createState() => _SevenDayChartState();
@@ -51,8 +54,9 @@ class _SevenDayChartState extends State<SevenDayChart> {
   @override
   Widget build(BuildContext context) {
     return Card(
+      margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+        padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -60,19 +64,19 @@ class _SevenDayChartState extends State<SevenDayChart> {
               children: [
                 const Expanded(
                   child: Text(
-                    'Giá trung bình nội địa (đ/kg) — 7 ngày',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    'Giá TB nội địa 7 ngày (đ/kg)',
+                    style: TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ),
                 IconButton(
                   tooltip: 'Tải lại biểu đồ',
                   visualDensity: VisualDensity.compact,
                   onPressed: _loading ? null : _load,
-                  icon: const Icon(Icons.refresh, size: 18),
+                  icon: const Icon(Icons.refresh, size: 16),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
             _buildBody(),
           ],
         ),
@@ -82,15 +86,15 @@ class _SevenDayChartState extends State<SevenDayChart> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const SizedBox(
-        height: 150,
-        child: Center(child: CircularProgressIndicator()),
+      return SizedBox(
+        height: widget.chartHeight,
+        child: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_error != null && _points.isEmpty) {
       return SizedBox(
-        height: 80,
+        height: 70,
         child: Center(
           child: TextButton.icon(
             onPressed: _load,
@@ -103,7 +107,7 @@ class _SevenDayChartState extends State<SevenDayChart> {
 
     if (_points.length < 2) {
       return const Padding(
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(8),
         child: Text('Chưa đủ dữ liệu 2 ngày để vẽ biểu đồ.'),
       );
     }
@@ -115,7 +119,7 @@ class _SevenDayChartState extends State<SevenDayChart> {
     return Column(
       children: [
         SizedBox(
-          height: 180,
+          height: widget.chartHeight,
           width: double.infinity,
           child: LineChart(
             LineChartData(
