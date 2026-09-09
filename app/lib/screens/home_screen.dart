@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../models/coffee_price.dart';
@@ -110,53 +112,54 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final price = _price!;
 
-    // Bỏ dòng "Tỷ giá USD/VND"
-    final domesticItems =
-        price.items.where((item) => item.market != 'Tỷ giá USD/VND').toList();
-
-    // Mọi thứ gọn trong 1 khung hình — không cần cuộn.
-    return SingleChildScrollView(
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _HeroCard(price: price),
-          const SizedBox(height: 10),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    // Responsive: dùng đầy màn hình — tự phóng to theo kích thước thiết bị.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale =
+            (math.min(constraints.maxWidth, constraints.maxHeight) / 400)
+                .clamp(1.0, 1.5)
+                .toDouble();
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(child: _MiniMarketCard(items: domesticItems)),
-              const SizedBox(width: 10),
-              Expanded(child: _MiniWorldCard(price: price)),
+              // Giá TB thu nhỏ (cả chữ lẫn ô) để nhường chỗ cho bảng + biểu đồ.
+              _HeroCard(price: price, scale: scale),
+              SizedBox(height: 6 * scale),
+              // MỘT bảng full-width duy nhất, chữ to cho người lớn tuổi.
+              _PriceTableCard(price: price, scale: scale),
+              if (_error != null) ...[
+                SizedBox(height: 4),
+                Text(
+                  'Lần làm mới gần nhất gặp lỗi: $_error',
+                  style: TextStyle(
+                      fontSize: 12 * scale, color: Colors.grey.shade600),
+                ),
+              ],
+              SizedBox(height: 6 * scale),
+              _SectionTitle('Biểu đồ giá 7 ngày qua', scale: scale),
+              SizedBox(height: 4),
+              // Biểu đồ nở đầy chiều cao còn lại => dùng hết màn hình.
+              Expanded(child: SevenDayChart(scale: scale)),
             ],
           ),
-          if (_error != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              'Lần làm mới gần nhất gặp lỗi: $_error',
-              style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-            ),
-          ],
-          const SizedBox(height: 10),
-          const _SectionTitle('Biểu đồ giá 7 ngày qua'),
-          const SizedBox(height: 6),
-          const SevenDayChart(chartHeight: 130),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
-/// Thẻ giá chính (gọn 1 dòng lớn + giờ cập nhật).
+/// Dải giá TB THU NHỎ (cả chữ lẫn ô) — gọn 1 dòng, nhường chỗ cho bảng + chart.
 class _HeroCard extends StatelessWidget {
-  const _HeroCard({required this.price});
+  const _HeroCard({required this.price, required this.scale});
 
   final CoffeePrice price;
+  final double scale;
 
   @override
   Widget build(BuildContext context) {
+    final s = scale;
     final color = _changeColor();
     final arrow = price.isUp
         ? '▲ '
@@ -170,52 +173,49 @@ class _HeroCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: EdgeInsets.fromLTRB(12 * s, 5 * s, 12 * s, 5 * s),
+        child: Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Giá trung bình nội địa',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          price.averagePrice,
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Giá trung bình nội địa',
+                    style: TextStyle(
+                      fontSize: 12 * s,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  change,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                  const SizedBox(height: 1),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      price.averagePrice,
+                      style: TextStyle(
+                        fontSize: 24 * s,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  Text(
+                    'Cập nhật: ${price.updatedAt}',
+                    style:
+                        TextStyle(fontSize: 11 * s, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(width: 8),
             Text(
-              'Cập nhật: ${price.updatedAt}',
-              style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+              change,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 15 * s,
+              ),
             ),
           ],
         ),
@@ -230,128 +230,122 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
-/// Bảng mini: giá từng tỉnh (cột trái).
-class _MiniMarketCard extends StatelessWidget {
-  const _MiniMarketCard({required this.items});
-
-  final List<DomesticItem> items;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Giá nội địa',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.brown,
-              ),
-            ),
-            const SizedBox(height: 4),
-            for (final item in items) _miniRow(item),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _miniRow(DomesticItem item) {
-    final change = item.priceChange.isEmpty ? '' : item.priceChange;
-    final up = change.startsWith('+');
-    final down = change.startsWith('-');
-    final color =
-        up ? Colors.green.shade700 : (down ? Colors.red.shade700 : Colors.grey.shade600);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              item.market,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Text(
-            item.averagePrice,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(
-            width: 52,
-            child: Text(
-              change,
-              textAlign: TextAlign.right,
-              style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Bảng mini: giá quốc tế (cột phải).
-class _MiniWorldCard extends StatelessWidget {
-  const _MiniWorldCard({required this.price});
+/// MỘT bảng full-width duy nhất: nội địa + Hồ tiêu + giá thế giới.
+/// Giá nội địa chữ TO (20-22) cho người lớn tuổi dễ đọc;
+/// giá THẾ GIỚI thu nhỏ hơn; mọi giá được canh sát mép PHẢI.
+class _PriceTableCard extends StatelessWidget {
+  const _PriceTableCard({required this.price, required this.scale});
 
   final CoffeePrice price;
+  final double scale;
 
   @override
   Widget build(BuildContext context) {
+    final s = scale;
+    // Bỏ dòng "Tỷ giá USD/VND"
+    final domesticItems =
+        price.items.where((item) => item.market != 'Tỷ giá USD/VND').toList();
+
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+        padding: EdgeInsets.fromLTRB(12 * s, 6 * s, 12 * s, 6 * s),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Giá thế giới',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.brown,
+            _groupHeader('GIÁ NỘI ĐỊA (đ/kg)', s),
+            for (final item in domesticItems)
+              _bigRow(
+                item.market,
+                item.averagePrice,
+                item.priceChange,
+                null,
+                s,
               ),
-            ),
-            const SizedBox(height: 4),
-            _worldRow('Robusta London', price.robusta, 'USD/tấn'),
-            _worldRow('Arabica NY', price.arabica, 'cent/lb'),
+            Divider(height: 8 * s, thickness: 1, color: Colors.brown.shade100),
+            _groupHeader('GIÁ THẾ GIỚI', s),
+            _bigRow('Robusta London', price.robusta, '', 'USD/tấn', s,
+                small: true),
+            _bigRow('Arabica NY', price.arabica, '', 'cent/lb', s,
+                small: true),
           ],
         ),
       ),
     );
   }
 
-  Widget _worldRow(String label, String? value, String unit) {
+  Widget _groupHeader(String text, double s) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
+      padding: EdgeInsets.only(bottom: 3 * s),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 14 * s,
+          fontWeight: FontWeight.bold,
+          color: Colors.brown.shade700,
+        ),
+      ),
+    );
+  }
+
+  /// Một dòng bảng: tên bên trái, GIÁ đẩy sát mép phải.
+  /// `small = true` cho giá thế giới (chữ nhỏ hơn, dòng gọn hơn).
+  Widget _bigRow(
+    String name,
+    String? value,
+    String change,
+    String? unit,
+    double s, {
+    bool small = false,
+  }) {
+    final up = change.startsWith('+');
+    final down = change.startsWith('-');
+    final color = up
+        ? Colors.green.shade700
+        : (down ? Colors.red.shade700 : Colors.grey.shade600);
+    final val = value == null || value.isEmpty
+        ? '—'
+        : (unit == null ? value : '$value $unit');
+
+    final nameSize = small ? 14 * s : 17 * s;
+    final valueSize = small ? 16 * s : 22 * s;
+    final changeSize = small ? 13 * s : 17 * s;
+    final vPad = small ? 1.5 * s : 3 * s;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: vPad),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Flexible(
-            child: Text(label, style: const TextStyle(fontSize: 12)),
+          // Tên khu vực ăn hết khoảng trống còn lại => giá tự dồn về mép phải.
+          Expanded(
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: nameSize, fontWeight: FontWeight.w600),
+            ),
           ),
-          const SizedBox(width: 6),
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerRight,
+          SizedBox(width: 6 * s),
+          Text(
+            val,
+            style: TextStyle(fontSize: valueSize, fontWeight: FontWeight.w800),
+          ),
+          if (change.isNotEmpty) ...[
+            const SizedBox(width: 6),
+            SizedBox(
+              width: 72 * s,
               child: Text(
-                value == null || value.isEmpty ? '—' : '$value $unit',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
+                change,
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                  fontSize: changeSize,
+                  fontWeight: FontWeight.w700,
+                  color: color,
                 ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -359,16 +353,17 @@ class _MiniWorldCard extends StatelessWidget {
 }
 
 class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.text);
+  const _SectionTitle(this.text, {this.scale = 1.0});
 
   final String text;
+  final double scale;
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
       style: TextStyle(
-        fontSize: 14,
+        fontSize: 15 * scale,
         fontWeight: FontWeight.bold,
         color: Colors.brown.shade800,
       ),

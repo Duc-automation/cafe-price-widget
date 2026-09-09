@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import '../models/price_point.dart';
 import '../services/coffee_price_api.dart';
 
-/// Biểu đồ giá trung bình nội địa 7 ngày (đặt dưới bảng giá trong 1 màn hình).
+/// Biểu đồ giá trung bình nội địa 7 ngày. Nở đầy chiều cao mẹ cấp cho nó
+/// (cha bọc trong Expanded → biểu đồ to, dùng hết khoảng trống màn hình).
 class SevenDayChart extends StatefulWidget {
-  const SevenDayChart({super.key, this.chartHeight = 180});
+  const SevenDayChart({super.key, this.scale = 1.0});
 
-  /// Chiều cao vùng vẽ đồ thị (px logical).
-  final double chartHeight;
+  /// Hệ số phóng to chữ theo màn hình.
+  final double scale;
 
   @override
   State<SevenDayChart> createState() => _SevenDayChartState();
@@ -53,31 +54,34 @@ class _SevenDayChartState extends State<SevenDayChart> {
 
   @override
   Widget build(BuildContext context) {
+    final s = widget.scale;
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
+        padding: EdgeInsets.fromLTRB(10 * s, 6 * s, 10 * s, 4 * s),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Giá TB nội địa 7 ngày (đ/kg)',
                     style: TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.bold),
+                        fontSize: 13 * s, fontWeight: FontWeight.bold),
                   ),
                 ),
                 IconButton(
                   tooltip: 'Tải lại biểu đồ',
                   visualDensity: VisualDensity.compact,
                   onPressed: _loading ? null : _load,
-                  icon: const Icon(Icons.refresh, size: 16),
+                  icon: Icon(Icons.refresh, size: 18 * s),
                 ),
               ],
             ),
-            _buildBody(),
+            const SizedBox(height: 4),
+            // Phần nội dung nở đầy toàn bộ chiều cao còn lại.
+            Expanded(child: _buildBody()),
           ],
         ),
       ),
@@ -85,29 +89,23 @@ class _SevenDayChartState extends State<SevenDayChart> {
   }
 
   Widget _buildBody() {
+    final s = widget.scale;
     if (_loading) {
-      return SizedBox(
-        height: widget.chartHeight,
-        child: const Center(child: CircularProgressIndicator()),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_error != null && _points.isEmpty) {
-      return SizedBox(
-        height: 70,
-        child: Center(
-          child: TextButton.icon(
-            onPressed: _load,
-            icon: const Icon(Icons.refresh),
-            label: const Text('Không tải được, thử lại'),
-          ),
+      return Center(
+        child: TextButton.icon(
+          onPressed: _load,
+          icon: const Icon(Icons.refresh),
+          label: const Text('Không tải được, thử lại'),
         ),
       );
     }
 
     if (_points.length < 2) {
-      return const Padding(
-        padding: EdgeInsets.all(8),
+      return const Center(
         child: Text('Chưa đủ dữ liệu 2 ngày để vẽ biểu đồ.'),
       );
     }
@@ -118,79 +116,80 @@ class _SevenDayChartState extends State<SevenDayChart> {
 
     return Column(
       children: [
-        SizedBox(
-          height: widget.chartHeight,
-          width: double.infinity,
-          child: LineChart(
-            LineChartData(
-              minX: 0,
-              maxX: (_points.length - 1).toDouble(),
-              minY: minV.toDouble(),
-              maxY: maxV.toDouble(),
-              gridData: const FlGridData(
-                drawVerticalLine: false,
-                drawHorizontalLine: true,
-              ),
-              borderData: FlBorderData(
-                show: true,
-                border: Border.all(color: Colors.brown.shade100),
-              ),
-              titlesData: FlTitlesData(
-                topTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 48,
-                    getTitlesWidget: (v, meta) => Text(
-                      '${v.toInt()}đ',
-                      style: const TextStyle(fontSize: 9),
+        Expanded(
+          child: SizedBox(
+            width: double.infinity,
+            child: LineChart(
+              LineChartData(
+                minX: 0,
+                maxX: (_points.length - 1).toDouble(),
+                minY: minV.toDouble(),
+                maxY: maxV.toDouble(),
+                gridData: const FlGridData(
+                  drawVerticalLine: false,
+                  drawHorizontalLine: true,
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border.all(color: Colors.brown.shade100),
+                ),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 52 * s,
+                      getTitlesWidget: (v, meta) => Text(
+                        '${v.toInt()}đ',
+                        style: TextStyle(fontSize: 10 * s),
+                      ),
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 26,
+                      getTitlesWidget: (v, meta) {
+                        final i = v.toInt();
+                        if (i < 0 || i >= _points.length) {
+                          return const SizedBox.shrink();
+                        }
+                        final step = (_points.length ~/ 3).clamp(1, 3);
+                        final show = i == 0 ||
+                            i == _points.length - 1 ||
+                            i % step == 0;
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            show ? _short(_points[i].date) : '',
+                            style: TextStyle(fontSize: 10 * s),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 26,
-                    getTitlesWidget: (v, meta) {
-                      final i = v.toInt();
-                      if (i < 0 || i >= _points.length) {
-                        return const SizedBox.shrink();
-                      }
-                      final step = (_points.length ~/ 3).clamp(1, 3);
-                      final show = i == 0 ||
-                          i == _points.length - 1 ||
-                          i % step == 0;
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          show ? _short(_points[i].date) : '',
-                          style: const TextStyle(fontSize: 9),
-                        ),
-                      );
-                    },
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: [
+                      for (var i = 0; i < _points.length; i++)
+                        FlSpot(i.toDouble(), _points[i].value.toDouble()),
+                    ],
+                    isCurved: true,
+                    preventCurveOverShooting: true,
+                    color: const Color(0xFF6D4C41),
+                    barWidth: 3,
+                    dotData: const FlDotData(show: true),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: const Color(0xFF6D4C41).withValues(alpha: 0.15),
+                    ),
                   ),
-                ),
+                ],
               ),
-              lineBarsData: [
-                LineChartBarData(
-                  spots: [
-                    for (var i = 0; i < _points.length; i++)
-                      FlSpot(i.toDouble(), _points[i].value.toDouble()),
-                  ],
-                  isCurved: true,
-                  preventCurveOverShooting: true,
-                  color: const Color(0xFF6D4C41),
-                  barWidth: 3,
-                  dotData: const FlDotData(show: true),
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: const Color(0xFF6D4C41).withValues(alpha: 0.15),
-                  ),
-                ),
-              ],
             ),
           ),
         ),
@@ -199,7 +198,7 @@ class _SevenDayChartState extends State<SevenDayChart> {
           alignment: Alignment.centerRight,
           child: Text(
             'Nguồn: chocaphe.vn',
-            style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
+            style: TextStyle(fontSize: 10 * s, color: Colors.grey.shade500),
           ),
         ),
       ],
