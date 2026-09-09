@@ -4,7 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 
-/** Widget 4x4: giá trung bình + thay đổi + giờ cập nhật + giá 4 tỉnh. */
+/** Widget 4x3: giá trung bình + thay đổi + giờ cập nhật + giá 4 tỉnh. */
 class CoffeePriceWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(
