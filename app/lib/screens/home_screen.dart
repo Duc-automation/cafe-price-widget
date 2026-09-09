@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/coffee_price.dart';
 import '../services/coffee_price_api.dart';
+import '../services/widget_store.dart';
 
 /// Màn hình chính: hiện giá cà phê lấy từ API chocaphe.vn.
 class HomeScreen extends StatefulWidget {
@@ -31,6 +32,12 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final price = await CoffeePriceApi.fetch();
       if (!mounted) return;
+      // Lưu giá xuống Android để widget trên màn hình chính đọc được.
+      await WidgetStore.save(
+        averagePrice: price.averagePrice,
+        priceChange: price.priceChange,
+        updatedAt: price.updatedAt,
+      );
       setState(() {
         _price = price;
         _loading = false;
