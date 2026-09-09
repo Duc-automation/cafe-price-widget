@@ -2,5 +2,6 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <corners android:radius="18dp" />
-    <solid android:color="#6D4C41" />
+    <!-- Nền nâu trong suốt 50% để nhìn xuyên thấy wallpaper -->
+    <solid android:color="#806D4C41" />
 </shape>
