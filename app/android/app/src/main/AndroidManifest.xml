@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Cần mạng để gọi API khi chạy nền -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="Giá cà phê"
         android:name="${applicationName}"

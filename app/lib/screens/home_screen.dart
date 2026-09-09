@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/coffee_price.dart';
 import '../services/coffee_price_api.dart';
 import '../services/widget_store.dart';
+import 'schedule_screen.dart';
 
 /// Màn hình chính: hiện giá cà phê lấy từ API chocaphe.vn.
 class HomeScreen extends StatefulWidget {
@@ -54,6 +55,13 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Giá cà phê hôm nay'),
         centerTitle: true,
         actions: [
+          IconButton(
+            tooltip: 'Cập nhật tự động theo lịch',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ScheduleScreen()),
+            ),
+            icon: const Icon(Icons.schedule_outlined),
+          ),
           IconButton(
             tooltip: 'Làm mới',
             onPressed: _loading ? null : _load,

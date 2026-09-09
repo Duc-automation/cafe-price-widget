@@ -44,6 +44,11 @@ kotlin {
     }
 }
 
+dependencies {
+    // WorkManager: tác vụ nền cập nhật giá theo lịch.
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
+}
+
 flutter {
     source = "../.."
 }
