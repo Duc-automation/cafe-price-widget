@@ -33,11 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final price = await CoffeePriceApi.fetch();
       if (!mounted) return;
       // Lưu giá xuống Android để widget trên màn hình chính đọc được.
-      await WidgetStore.save(
-        averagePrice: price.averagePrice,
-        priceChange: price.priceChange,
-        updatedAt: price.updatedAt,
-      );
+      await WidgetStore.save(price: price);
       setState(() {
         _price = price;
         _loading = false;

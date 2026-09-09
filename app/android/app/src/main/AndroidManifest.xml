@@ -32,6 +32,18 @@
             android:value="2" />
 
         <!-- Widget giá cà phê trên màn hình chính -->
+        <!-- 4x1: giá trung bình -->
+        <receiver
+            android:name=".CoffeePriceWidget4x1Provider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/coffee_price_widget_4x1_info" />
+        </receiver>
+        <!-- 4x4: giá trung bình + giá các tỉnh -->
         <receiver
             android:name=".CoffeePriceWidgetProvider"
             android:exported="false">

@@ -19,7 +19,8 @@ class MainActivity : FlutterActivity() {
                     val avg = call.argument<String>("avg") ?: ""
                     val change = call.argument<String>("change") ?: ""
                     val updated = call.argument<String>("updated") ?: ""
-                    CoffeePriceWidgetProvider.saveData(this, avg, change, updated)
+                    val items = call.argument<String>("items") ?: "[]"
+                    CoffeePriceWidgetHelper.saveData(this, avg, change, updated, items)
                     result.success(true)
                 }
                 else -> result.notImplemented()
