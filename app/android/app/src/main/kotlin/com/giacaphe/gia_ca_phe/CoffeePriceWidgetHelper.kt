@@ -99,12 +99,18 @@ object CoffeePriceWidgetHelper {
         else -> Color.parseColor("#E0E0E0")
     }
 
-    /** Điền 4 dòng tỉnh (Đắk Lắk, Lâm Đồng, Gia Lai, Đắk Nông). */
+    /** Điền 5 dòng: 4 tỉnh (Đắk Lắk, Lâm Đồng, Gia Lai, Đắk Nông) + Hồ tiêu. */
     private fun fillRows(views: RemoteViews, itemsJson: String) {
-        val rows = intArrayOf(R.id.row1, R.id.row2, R.id.row3, R.id.row4)
-        val markets = intArrayOf(R.id.item_m1, R.id.item_m2, R.id.item_m3, R.id.item_m4)
-        val prices = intArrayOf(R.id.item_p1, R.id.item_p2, R.id.item_p3, R.id.item_p4)
-        val changes = intArrayOf(R.id.item_c1, R.id.item_c2, R.id.item_c3, R.id.item_c4)
+        val rows = intArrayOf(R.id.row1, R.id.row2, R.id.row3, R.id.row4, R.id.row5)
+        val markets = intArrayOf(
+            R.id.item_m1, R.id.item_m2, R.id.item_m3, R.id.item_m4, R.id.item_m5
+        )
+        val prices = intArrayOf(
+            R.id.item_p1, R.id.item_p2, R.id.item_p3, R.id.item_p4, R.id.item_p5
+        )
+        val changes = intArrayOf(
+            R.id.item_c1, R.id.item_c2, R.id.item_c3, R.id.item_c4, R.id.item_c5
+        )
 
         val arr = try {
             JSONArray(itemsJson)
