@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Widget 4x3: giá trung bình + thay đổi + giá 4 tỉnh (chữ to, dễ đọc). -->
+<!-- Widget 4x3: giá trung bình + thay đổi + giá 4 tỉnh (chữ to, ẩn dòng phụ để đủ chỗ). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_bg"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="8dp">
 
+    <!-- Dòng giá chính (chữ to nhất) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,7 +24,7 @@
             android:maxLines="1"
             android:text="—"
             android:textColor="#FFFFFF"
-            android:textSize="36sp"
+            android:textSize="44sp"
             android:textStyle="bold" />
 
         <TextView
@@ -32,49 +33,35 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text=""
-            android:textSize="17sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- Giữ id để code set được; ẩn để nhường chỗ cho chữ to -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Giá cà phê hôm nay"
-            android:textColor="#E8DCC8"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/updated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textColor="#B3FFFFFF"
-            android:textSize="11sp" />
-    </LinearLayout>
+        android:text="Giá cà phê hôm nay"
+        android:textColor="#E8DCC8"
+        android:textSize="13sp"
+        android:visibility="gone" />
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="3dp"
-        android:background="#33FFFFFF" />
+        android:id="@+id/updated"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="#B3FFFFFF"
+        android:textSize="9sp"
+        android:visibility="gone" />
 
-    <!-- 4 dòng tỉnh -->
+    <!-- 4 dòng tỉnh (chữ to) -->
     <LinearLayout
         android:id="@+id/row1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="3dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -87,7 +74,7 @@
             android:maxLines="1"
             android:text=""
             android:textColor="#F5EFE6"
-            android:textSize="15sp" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/item_p1"
@@ -95,7 +82,7 @@
             android:layout_height="wrap_content"
             android:text=""
             android:textColor="#FFFFFF"
-            android:textSize="16sp"
+            android:textSize="19sp"
             android:textStyle="bold" />
 
         <TextView
@@ -104,7 +91,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text=""
-            android:textSize="15sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -112,7 +99,7 @@
         android:id="@+id/row2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="3dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -125,7 +112,7 @@
             android:maxLines="1"
             android:text=""
             android:textColor="#F5EFE6"
-            android:textSize="15sp" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/item_p2"
@@ -133,7 +120,7 @@
             android:layout_height="wrap_content"
             android:text=""
             android:textColor="#FFFFFF"
-            android:textSize="16sp"
+            android:textSize="19sp"
             android:textStyle="bold" />
 
         <TextView
@@ -142,7 +129,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text=""
-            android:textSize="15sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -150,7 +137,7 @@
         android:id="@+id/row3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="3dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -163,7 +150,7 @@
             android:maxLines="1"
             android:text=""
             android:textColor="#F5EFE6"
-            android:textSize="15sp" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/item_p3"
@@ -171,7 +158,7 @@
             android:layout_height="wrap_content"
             android:text=""
             android:textColor="#FFFFFF"
-            android:textSize="16sp"
+            android:textSize="19sp"
             android:textStyle="bold" />
 
         <TextView
@@ -180,7 +167,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text=""
-            android:textSize="15sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -188,7 +175,7 @@
         android:id="@+id/row4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="3dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -201,7 +188,7 @@
             android:maxLines="1"
             android:text=""
             android:textColor="#F5EFE6"
-            android:textSize="15sp" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/item_p4"
@@ -209,7 +196,7 @@
             android:layout_height="wrap_content"
             android:text=""
             android:textColor="#FFFFFF"
-            android:textSize="16sp"
+            android:textSize="19sp"
             android:textStyle="bold" />
 
         <TextView
@@ -218,7 +205,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text=""
-            android:textSize="15sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>
