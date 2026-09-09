@@ -13,7 +13,6 @@ class ScheduleScreen extends StatefulWidget {
 class _ScheduleScreenState extends State<ScheduleScreen> {
   bool _enabled = false;
   List<String> _times = [];
-  int _max = 5;
   bool _loading = true;
 
   @override
@@ -33,7 +32,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           .map((e) => e.trim())
           .where((e) => e.isNotEmpty)
           .toList();
-      _max = (s['max'] as int?) ?? 5;
       _loading = false;
     });
   }
@@ -57,7 +55,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     await WidgetStore.setSchedule(
       enabled: _enabled,
       times: _times,
-      maxPerDay: _max,
     );
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -115,17 +112,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     child: Text('Chưa có giờ nào (mặc định 07:30, 12:00, 18:00)',
                         style: TextStyle(color: Colors.grey)),
                   ),
-                const SizedBox(height: 16),
-                Text('Tối đa số lần/ngày: $_max',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                Slider(
-                  value: _max.toDouble(),
-                  min: 1,
-                  max: 10,
-                  divisions: 9,
-                  label: '$_max',
-                  onChanged: (v) => setState(() => _max = v.round()),
-                ),
                 const SizedBox(height: 16),
                 FilledButton.icon(
                   onPressed: _save,

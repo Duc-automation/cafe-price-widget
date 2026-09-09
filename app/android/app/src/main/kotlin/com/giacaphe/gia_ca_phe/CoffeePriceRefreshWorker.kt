@@ -33,12 +33,9 @@ class CoffeePriceRefreshWorker(
 
         if (!prefs.getBoolean(KEY_ENABLED, false)) return Result.success()
 
+        // Mỗi giờ cấu hình = tối đa 1 lần/ngày (không còn giới hạn tổng).
         val now = Calendar.getInstance()
         val dateKey = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(now.time)
-        if (prefs.getString(KEY_DAY, "") != dateKey) {
-            prefs.edit().putString(KEY_DAY, dateKey).putInt(KEY_COUNT, 0).apply()
-        }
-
         val minutesNow = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
         val bucketNow = minutesNow / 15
 
@@ -57,18 +54,14 @@ class CoffeePriceRefreshWorker(
         }
         if (!due) return Result.success()
 
-        val count = prefs.getInt(KEY_COUNT, 0)
-        val max = prefs.getInt(KEY_MAX, DEFAULT_MAX)
+        // Tránh chạy 2 lần trong cùng ô giờ 15 phút của cùng 1 ngày.
         val lastRunKey = prefs.getString(KEY_LAST_RUN_KEY, "") ?: ""
         val currentRunKey = "$dateKey-$bucketNow"
-        if (count >= max || lastRunKey == currentRunKey) return Result.success()
+        if (lastRunKey == currentRunKey) return Result.success()
 
         return try {
             fetchAndSave()
-            prefs.edit()
-                .putInt(KEY_COUNT, count + 1)
-                .putString(KEY_LAST_RUN_KEY, currentRunKey)
-                .apply()
+            prefs.edit().putString(KEY_LAST_RUN_KEY, currentRunKey).apply()
             Result.success()
         } catch (e: Exception) {
             Result.retry()

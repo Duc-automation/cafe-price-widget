@@ -35,17 +35,16 @@ class WidgetStore {
     }
   }
 
-  /// Lưu lịch tự động cập nhật (bật/tắt, các giờ HH:mm, tối đa số lần/ngày).
+  /// Lưu lịch tự động cập nhật (bật/tắt + danh sách giờ HH:mm).
+  /// Mỗi giờ đặt = tối đa 1 lần/ngày.
   static Future<void> setSchedule({
     required bool enabled,
     required List<String> times,
-    required int maxPerDay,
   }) async {
     try {
       await _channel.invokeMethod('setSchedule', <String, Object>{
         'enabled': enabled,
         'times': times.join(','),
-        'max': maxPerDay,
       });
     } on MissingPluginException {
       // Chạy trên nền tảng không có Android (web...) -> bỏ qua.
