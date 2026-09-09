@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/coffee_price.dart';
 import '../services/coffee_price_api.dart';
 import '../services/widget_store.dart';
+import '../widgets/seven_day_chart.dart';
 import 'schedule_screen.dart';
 
 /// Màn hình chính: hiện giá cà phê lấy từ API chocaphe.vn.
@@ -124,7 +125,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
           const _SectionTitle('Giá nội địa từng tỉnh'),
           const SizedBox(height: 8),
-          ...price.items.map((item) => _MarketRow(item: item)),
+          // Bỏ qua dòng "Tỷ giá USD/VND"
+          ...price.items
+              .where((item) => item.market != 'Tỷ giá USD/VND')
+              .map((item) => _MarketRow(item: item)),
           if (_error != null) ...[
             const SizedBox(height: 8),
             Text(
@@ -132,6 +136,12 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
           ],
+          // Biểu đồ 7 ngày (cùng 1 màn hình)
+          const SizedBox(height: 20),
+          const _SectionTitle('Biểu đồ giá 7 ngày qua'),
+          const SizedBox(height: 8),
+          const SevenDayChart(),
+          const SizedBox(height: 12),
         ],
       ),
     );
