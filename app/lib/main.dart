@@ -1,3 +1,4 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 
 import 'screens/home_screen.dart';
@@ -12,15 +13,26 @@ class GiaCaPheApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Giá cà phê',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        // Gam màu nâu cà phê.
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF795548)),
-        useMaterial3: true,
-      ),
-      home: const HomeScreen(),
+    // Android 12+ (Material You): tự lấy màu theo theme/wallpaper của máy.
+    return DynamicColorBuilder(
+      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+        // Máy không hỗ trợ Material You -> về gam nâu cà phê mặc định.
+        final light = lightDynamic ??
+            ColorScheme.fromSeed(seedColor: const Color(0xFF795548));
+        final dark = darkDynamic ??
+            ColorScheme.fromSeed(
+              seedColor: const Color(0xFF795548),
+              brightness: Brightness.dark,
+            );
+        return MaterialApp(
+          title: 'Giá cà phê',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(colorScheme: light, useMaterial3: true),
+          darkTheme: ThemeData(colorScheme: dark, useMaterial3: true),
+          themeMode: ThemeMode.system,
+          home: const HomeScreen(),
+        );
+      },
     );
   }
 }

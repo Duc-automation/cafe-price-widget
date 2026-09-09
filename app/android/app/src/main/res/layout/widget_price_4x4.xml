@@ -18,7 +18,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="GIÁ CÀ PHÊ HÔM NAY"
-        android:textColor="#E8DCC8"
+        android:textColor="@color/widget_title"
         android:textSize="18sp"
         android:textStyle="bold" />
 
@@ -37,7 +37,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="—"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/widget_price"
             android:textSize="34sp"
             android:textStyle="bold" />
 
@@ -56,7 +56,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""
-        android:textColor="#B3FFFFFF"
+        android:textColor="@color/widget_muted"
         android:textSize="10sp"
         android:visibility="gone" />
 
@@ -73,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginBottom="6dp"
-            android:background="#66FFFFFF" />
+            android:background="@color/widget_divider_main" />
 
         <!-- 4 dòng tỉnh -->
         <LinearLayout
@@ -91,7 +91,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text=""
-            android:textColor="#F5EFE6"
+            android:textColor="@color/widget_name"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -100,7 +100,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
-            android:textColor="#FFFFFF"
+            android:textColor="@color/widget_price"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -129,7 +129,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text=""
-            android:textColor="#F5EFE6"
+            android:textColor="@color/widget_name"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -138,7 +138,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
-            android:textColor="#FFFFFF"
+            android:textColor="@color/widget_price"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -167,7 +167,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text=""
-            android:textColor="#F5EFE6"
+            android:textColor="@color/widget_name"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -176,7 +176,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
-            android:textColor="#FFFFFF"
+            android:textColor="@color/widget_price"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -205,7 +205,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text=""
-            android:textColor="#F5EFE6"
+            android:textColor="@color/widget_name"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -214,7 +214,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
-            android:textColor="#FFFFFF"
+            android:textColor="@color/widget_price"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -234,7 +234,7 @@
         android:layout_height="1dp"
         android:layout_marginTop="3dp"
         android:layout_marginBottom="2dp"
-        android:background="#33FFFFFF" />
+        android:background="@color/widget_divider_sub" />
 
     <!-- Hồ tiêu -->
     <LinearLayout
@@ -252,7 +252,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text=""
-            android:textColor="#F5EFE6"
+            android:textColor="@color/widget_name"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -261,7 +261,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
-            android:textColor="#FFFFFF"
+            android:textColor="@color/widget_price"
             android:textSize="30sp"
             android:textStyle="bold" />
 

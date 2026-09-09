@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Màu widget – chế độ TỐI: nền đen, chữ sáng -->
+<resources>
+    <color name="widget_bg_solid">#CC000000</color>
+    <color name="widget_title">#E8DCC8</color>
+    <color name="widget_price">#FFFFFF</color>
+    <color name="widget_name">#F5EFE6</color>
+    <color name="widget_muted">#B3FFFFFF</color>
+    <color name="widget_divider_main">#66FFFFFF</color>
+    <color name="widget_divider_sub">#33FFFFFF</color>
+</resources>

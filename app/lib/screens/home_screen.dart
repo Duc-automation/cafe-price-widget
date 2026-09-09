@@ -282,7 +282,7 @@ class _PriceTableCard extends StatelessWidget {
         style: TextStyle(
           fontSize: 14 * s,
           fontWeight: FontWeight.bold,
-          color: Colors.brown.shade700,
+          color: Colors.brown.shade300,
         ),
       ),
     );
@@ -365,7 +365,7 @@ class _SectionTitle extends StatelessWidget {
       style: TextStyle(
         fontSize: 15 * scale,
         fontWeight: FontWeight.bold,
-        color: Colors.brown.shade800,
+        color: Colors.brown.shade300,
       ),
     );
   }

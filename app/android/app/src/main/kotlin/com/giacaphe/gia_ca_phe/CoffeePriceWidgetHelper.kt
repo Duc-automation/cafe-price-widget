@@ -94,9 +94,9 @@ object CoffeePriceWidgetHelper {
     }
 
     private fun changeColor(change: String): Int = when {
-        change.startsWith("+") -> Color.parseColor("#81C784")
-        change.startsWith("-") -> Color.parseColor("#EF9A9A")
-        else -> Color.parseColor("#E0E0E0")
+        change.startsWith("+") -> Color.parseColor("#2E7D32")
+        change.startsWith("-") -> Color.parseColor("#C62828")
+        else -> Color.parseColor("#757575")
     }
 
     /** Điền 5 dòng: 4 tỉnh (Đắk Lắk, Lâm Đồng, Gia Lai, Đắk Nông) + Hồ tiêu. */

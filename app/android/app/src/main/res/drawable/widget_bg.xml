@@ -2,6 +2,6 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <corners android:radius="18dp" />
-    <!-- Nền nâu trong suốt 50% để nhìn xuyên thấy wallpaper -->
-    <solid android:color="#806D4C41" />
+    <!-- Màu nền theo sáng/tối (xem values/colors.xml & values-night) -->
+    <solid android:color="@color/widget_bg_solid" />
 </shape>
