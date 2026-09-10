@@ -11,8 +11,21 @@
 
 File: `.github/workflows/ios-ipa.yml`
 - Runner: `macos-latest`, Flutter `3.47.2` (khớp bản local), `cache: true`.
+- `actions/checkout@v7` + `actions/upload-artifact@v7` (bản mới nhất — v4/v5 bị cảnh báo deprecated Node.js 20).
 - Chạy khi: bấm tay (**Actions → Build iOS IPA (unsigned) → Run workflow**) hoặc push có thay đổi trong `app/**`.
 - Kết quả: artifact **`Runner-unsigned-ipa`** (chứa `Runner.ipa`), giữ 14 ngày.
+
+### ✅ Đã kiểm chứng (10/09/2026)
+
+| Lần | Mô tả | Thời gian | Kết quả |
+|---|---|---|---|
+| 1 | cache lạnh (lần đầu) | **4 phút 17 giây** | ✓ success |
+| 2 | cache nóng (không đổi code iOS) | **1 phút 29 giây** | ✓ success |
+| 3 | sau khi nâng `@v7` | **3 phút 12 giây** | ✓ success, **hết cảnh báo** |
+
+- Artifact: `Runner-unsigned-ipa`, **7,1 MB**, không hết hạn trong 14 ngày.
+- 10/10 bước thành công, 0 annotation/cảnh báo.
+- Đường dẫn VD: `https://github.com/Duc-automation/cafe-price-widget/actions/runs/34450269105`
 
 **Vì sao build `--no-codesign`:** CI không có chứng chỉ của bạn, nên build thẳng `Runner.app` rồi tự đóng gói thành `.ipa`. Việc ký do **Sideloadly** làm trên Windows bằng Apple ID cá nhân.
 
@@ -80,4 +93,4 @@ Chỉ cho các việc **bắt buộc GUI**:
 
 ---
 
-**Trạng thái:** ✅ workflow `ios-ipa.yml` đã thêm và push (10/09/2026). Việc còn lại: chạy thử, tải `.ipa`, cài bằng Sideloadly.
+**Trạng thái:** ✅ workflow `ios-ipa.yml` đã chạy thành công 3 lần (10/09/2026), `.ipa` 7,1 MB sẵn sàng. Việc còn lại: tải `.ipa`, cài bằng **Sideloadly** lên iPhone (mục 2–3).
