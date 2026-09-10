@@ -92,5 +92,34 @@ Chọn macOS **Sonoma 14.x hoặc Sequoia 15.x** (đủ mới cho Xcode hiện t
 - Terminal: `xcode-select --install`.
 - Trong thư mục `app/` của dự án: chạy `flutter doctor` kiểm tra mục Xcode/iOS OK.
 
+### Bước E — Màn hình "Select the disk where you want to install macOS" (Continue bị xám)
+Đây **không phải lỗi cài đặt** — chỉ là đĩa ảo chưa được format. Nút **Continue xám = chưa chọn ổ nào**.1. Menu bar → **Utilities → Disk Utility** (bản khác: **Window → Disk Utility**).
+2. Trong Disk Utility → menu **View → Show All Devices** (bắt buộc, để thấy ổ vật lý).
+3. Cột trái → chọn mục **ngoài cùng** `VMware Virtual SATA Hard Drive Media` (không chọn mục con thụt lề) → **Erase**:
+   - Name: `Macintosh HD` • Format: **APFS** • Scheme: **GUID Partition Map**
+4. **Erase** → **Done** → thoát Disk Utility (`⌘Q`) → quay lại màn hình cài → chọn `Macintosh HD` → **Continue** (nút sẽ sáng).
+
+**Nếu Disk Utility không thấy ổ nào** (lỗi cấu hình VM, không phải lỗi format):
+- Kiểm tra nhanh: Disk Utility → Utilities → **Terminal** → `diskutil list`. Không có dòng VMware disk nào → chắc chắn lỗi phần cứng VM.
+- **Power Off** VM → **VM Settings → Hardware**: phải có **Hard Disk ≥ 80GB**, **Advanced → Virtual device node = SATA 0:0**. Ổ ở **NVMe** thường không hiện → sửa sang **SATA**. Thiếu ổ → Add → Hard Disk → SATA → 80GB → "Store as single file".
+- Kiểm tra `.vmx` (đóng VMware trước): phải có `sata0:0.present = "TRUE"`, `sata0:0.fileName = "macOS.vmdk"`, `sata0:0.deviceType = "disk"`; **không** để `nvme0:0` trỏ cùng file.
+- `.vmdk` hỏng/thiếu → tạo lại:
+  `"C:\Program Files (x86)\VMware\VMware Workstation\vmware-vdiskmanager.exe" -c -s 80GB -a lsilogic -t 2 macOS.vmdk`
+
+### Bước F — Dung lượng thật & an toàn dữ liệu (đo trên máy này 2026-09-10)
+
+**"Erase" trong Disk Utility có ảnh hưởng gì ngoài Windows không? → KHÔNG.**
+- 80 GB chỉ là **dung lượng ảo (trần)**; đĩa dạng **sparse**: file `macOS 14.vmdk` thật hiện chỉ ~10,5 MB, chỉ phình ra theo dữ liệu ghi thật.
+- `.vmx` dùng `sata0:0.fileName = "macOS 14.vmdk"` và **không** có `deviceType = "rawDisk"` ⇒ đĩa dựa trên file, không ánh xạ ổ thật ⇒ `Erase` tuyệt đối không chạm tới C: hay file Windows.
+
+**Ngân sách dung lượng (C: 475 GB, trống 60 GB tại thời điểm này):**
+- macOS Sonoma cài xong ≈ 20–25 GB • Xcode + iOS platform/runtime ≈ 30–40 GB • swap/cache ≈ 5 GB ⇒ **cần ~65–75 GB trống**.
+- Nguồn giải phóng: `Downloads\macOS Sonoma 14.7_23H124.iso` **15,5 GB** (xoá **sau khi** cài xong), VM `Ubuntu 64-bit` **13,8 GB**, VM `macOS 10.15` 0,01 GB, `cleanmgr` → Windows Update Cleanup.
+- ⚠️ `.vmdk` **không bao giờ được vượt quá dung lượng trống của C:**, nếu không Windows hết chỗ và cả hai cùng lỗi.
+- Không tạo **VMware Snapshot** (mỗi snapshot có thể nhân đôi dung lượng ổ ảo). **Shut Down sạch** để xoá `.vmem` (= dung lượng RAM của VM, 4 GB hiện tại).
+- Máy chủ: **31,8 GB RAM / 28 luồng CPU** → sau khi cài macOS xong nâng VM lên **RAM 8–12 GB, 4–6 CPU** (hiện `memsize=4096`, `numvcpus=2` — quá thấp cho Xcode).
+
 ---
-**Trạng thái:** 🚧 đang cài (Bước A–C). Xong bước nào báo để tôi hỗ trợ tiếp (chỉnh `.vmx`, cài Xcode, kết nối iPhone qua USB passthrough).
+**Trạng thái:** ✅ **macOS Sonoma đã cài xong (10/09/2026)** trên VM `macOS 14` (`C:\Users\congd\Documents\Virtual Machines\macOS 14`) — đĩa ảo `disk0` đã khởi tạo APFS (`Macintosh HD`), `.vmdk` = ~29 GB. VM `Ubuntu 64-bit` (13,8 GB) + `macOS 10.15` đã gỡ. C: trống ~45 GB sau khi gỡ.
+**Việc tiếp theo:** eject ISO + bỏ "Connect at power on" cho CD/DVD → xoá ISO (15,5 GB) → `cleanmgr` → cài **VMware Tools** → tăng RAM/CPU (8–12 GB / 4–6 lõi) → **Xcode** → `flutter doctor`.
+**Ghi chú đã gặp:** màn hình "Select the disk…" Continue bị xám do Disk Utility**mặc định ẩn đĩa chưa format** — phải bật `View → Show All Devices` thì `VMware Virtual SATA Hard Drive Media` mới hiện ra (xem Bước E).
