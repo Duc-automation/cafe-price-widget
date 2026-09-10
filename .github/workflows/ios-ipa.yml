@@ -12,6 +12,9 @@ concurrency:
   group: ios-ipa-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write # cần để tạo/cập nhật GitHub Release chứa file .ipa
+
 jobs:
   build-ios:
     name: Build unsigned IPA
@@ -59,3 +62,20 @@ jobs:
           path: app/Runner.ipa
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish to GitHub Release (link tải cố định)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: app
+        run: |
+          set -e
+          TAG="ios-latest"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" Runner.ipa --clobber
+          else
+            gh release create "$TAG" Runner.ipa \
+              --title "iOS build mới nhất (unsigned .ipa)" \
+              --notes "Bản build iOS mới nhất — chưa ký, cần Sideloadly/AltStore/ESign để cài lên iPhone. Tự động tạo bởi GitHub Actions."
+          fi
+          echo "Link tải trực tiếp: https://github.com/${{ github.repository }}/releases/download/$TAG/Runner.ipa"
+          gh release view "$TAG" --json url --jq .url
