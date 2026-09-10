@@ -8,4 +8,5 @@
     <color name="widget_muted">#8D6E63</color>
     <color name="widget_divider_main">#664E342E</color>
     <color name="widget_divider_sub">#334E342E</color>
+	<color name="ic_launcher_background">#F5EFE6</color>
 </resources>
