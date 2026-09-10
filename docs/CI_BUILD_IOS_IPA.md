@@ -115,4 +115,33 @@ Chỉ cho các việc **bắt buộc GUI**:
 
 ---
 
-**Trạng thái:** ✅ workflow `ios-ipa.yml` đã chạy thành công 3 lần (10/09/2026), `.ipa` 7,1 MB sẵn sàng. Việc còn lại: tải `.ipa`, cài bằng **Sideloadly** lên iPhone (mục 2–3).
+**Trạng thái:** ✅ workflow `ios-ipa.yml` đã chạy thành công nhiều lần, `.ipa` (7,1 MB) luôn sẵn ở link cố định.
+
+---
+
+## 7. Trạng thái cài lên iPhone (10/09/2026) — đã thử hết, còn lại gì
+
+**Kết luận ngắn:** phần **build/lấy `.ipa` đã xong 100%**; chỉ còn khâu **cài lên iPhone** bị chặn bởi công cụ sideload + iOS 26.6.
+
+| Thử nghiệm | Kết quả |
+|---|---|
+| GitHub Actions build `.ipa` | ✅ **Xong** (1,5–4 phút/lần), link cố định ở GitHub Release `ios-latest` |
+| Apple ID + app-specific password | ✅ Xong (dùng Apple ID chính của iPhone) |
+| iTunes environment | ✅ Đã đăng nhập đúng (`StoreUserInfo` = Nguyễn công Đức) |
+| **Developer Mode** | ✅ Đã **bật** (mục này bị Apple **ẩn** — phải dùng `pymobiledevice3 amfi reveal-developer-mode` mới hiện) |
+| Sideloadly — đăng nhập Apple ID | ✅ Xong (nhờ **Settings → Anisette = Remote**, hết lỗi `-22410`) |
+| Sideloadly — truyền file | ✅ Xong (nhờ **☑ Dynamic upload / zipstream**; hết lỗi `Invalid file` khi ở mode không ký) |
+| **Sideloadly — KÝ app** | ❌ **LỖI `Guru Meditation f65043@1006:23a71c Invalid file`** — chết ngay sau `Obtaining team ID`. **Bug của Sideloadly 0.60 với iOS 26.6** (IPA chuẩn của chính AltStore cũng lỗi y hệt; đã loại trừ đĩa đầy, tài khoản, mạng) |
+| AltServer (AltStore) | ❌ Lỗi `-22410` khi đăng nhập (dùng AOSKit cũ từ iCloud 7.18). Đã tạo bản AOSKit mới (iCloud 15.9) ở `%LOCALAPPDATA%\AppleNew\Apple` nhưng **chưa thử lại** |
+| `pymobiledevice3 apps install` | ✅ **Truyền + cài hoạt động** — chỉ báo `No code signature found` (đúng, vì IPA build `--no-codesign`) |
+
+### 🔜 Khi muốn làm tiếp — chọn 1 trong 3
+
+1. **AltServer** (2 phút, chưa thử hết): khay hệ thống → AltServer → `iCloud Not Found` → **Choose Folder** → `C:\Users\congd\AppData\Local\AppleNew\Apple` → **Install AltStore** → Alita iPhone.
+2. **ESign** (0đ): ký ngay trên iPhone bằng Safari, né hết lỗi PC↔iPhone.
+3. **Apple Developer $99/năm → TestFlight** (chắc ăn 100%): thêm 1 bước upload vào workflow này rồi cài trực tiếp trong app TestFlight trên iPhone — không PC, không hết hạn 7 ngày.
+
+### 🖥️ Hướng VMware/Xcode — cần biết trước
+Xcode 26.x (bản duy nhất cài được lên iOS 26) yêu cầu **macOS Sequoia 15.6+** ⇒ VM `macOS 14` (Sonoma 14.7) **phải nâng cấp macOS trước**, cần thêm ~40–50 GB trống. Chi tiết ở `docs/CAI_MACOS_VM_VMWARE.md`.
+
+**Tài liệu liên quan:** `docs/CAI_MACOS_VM_VMWARE.md` (VM) • bộ nhớ dự án có ghi đầy đủ các lỗi & cách sửa.
