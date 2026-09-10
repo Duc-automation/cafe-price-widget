@@ -1,0 +1,6 @@
+# Rác hệ điều hành
+.DS_Store
+Thumbs.db
+
+# Sản phẩm build iOS (được CI tạo ra, không commit)
+app/Runner.ipa
