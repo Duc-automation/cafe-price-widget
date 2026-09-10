@@ -13,7 +13,9 @@ File: `.github/workflows/ios-ipa.yml`
 - Runner: `macos-latest`, Flutter `3.47.2` (khớp bản local), `cache: true`.
 - `actions/checkout@v7` + `actions/upload-artifact@v7` (bản mới nhất — v4/v5 bị cảnh báo deprecated Node.js 20).
 - Chạy khi: bấm tay (**Actions → Build iOS IPA (unsigned) → Run workflow**) hoặc push có thay đổi trong `app/**`.
-- Kết quả: artifact **`Runner-unsigned-ipa`** (chứa `Runner.ipa`), giữ 14 ngày.
+- Kết quả:
+  - artifact **`Runner-unsigned-ipa`** (chứa `Runner.ipa`), giữ 14 ngày;
+  - **GitHub Release tag `ios-latest`** — link tải cố định, không cần đăng nhập (xem mục 2b).
 
 ### ✅ Đã kiểm chứng (10/09/2026)
 
@@ -35,10 +37,30 @@ File: `.github/workflows/ios-ipa.yml`
 
 1. Sửa code → commit → push lên `main` (đổi gì trong `app/**` là CI tự chạy).
    - Hoặc ép chạy: **Actions → Run workflow**.
-2. Đợi ~10–15 phút (lần đầu lâu hơn do tải Flutter + `pod install`; các lần sau nhanh hơn nhờ cache).
-3. Vào run → mục **Artifacts** → tải **`Runner-unsigned-ipa`** → giải nén được `Runner.ipa`.
+2. Đợi **~1,5–3 phút** (lần đầu ~4–5 phút do tải Flutter; các lần sau nhờ cache nên rất nhanh).
+3. Lấy `.ipa` bằng 1 trong 2 cách:
+   - **Artifacts** trong run → tải `Runner-unsigned-ipa` (phải đăng nhập GitHub) → giải nén ra `Runner.ipa`
+   - **Link cố định**, mở được ngay trên điện thoại, không cần đăng nhập → xem **mục 2b**
 4. Mở **Sideloadly** → kéo `Runner.ipa` vào → nhập **Apple ID** → **Start**.
 5. iPhone: **Settings → Privacy & Security → Developer Mode → On** (khởi động lại máy), và **Settings → General → VPN & Device Management → Trust** tài khoản Apple của bạn.
+
+### 2b. 📱 Tải trực tiếp trên điện thoại — link cố định (không cần đăng nhập)
+
+Workflow tự đính `.ipa` mới nhất vào **GitHub Release tag `ios-latest`**, nên có **link cố định** luôn trỏ về bản mới nhất:
+
+```
+https://github.com/Duc-automation/cafe-price-widget/releases/download/ios-latest/Runner.ipa
+```
+
+Mở link này bằng **Safari trên iPhone** → file tải vào app **Files**.
+
+> ⚠️ **Tải được ≠ cài được.** iOS 26 **không** cho cài `.ipa` chưa ký bằng cách bấm vào file (TrollStore đã bị Apple vá từ iOS 17.1 trở lên). Vẫn **bắt buộc** phải có công cụ **ký**:
+>
+> | Cách ký | Ghi chú |
+> |---|---|
+> | **Sideloadly / AltStore** trên PC (Windows) | Miễn phí, app sống 7 ngày; chuyển `.ipa` từ iPhone sang PC rồi ký |
+> | **ESign / Scarlet / GBox** (ký ngay trên iPhone) | Không cần PC, nhưng là app ngoài luồng → **rủi ro bảo mật** |
+> | **TestFlight** ($99/năm) | Cài thẳng trong app TestFlight trên iPhone, không cần PC |
 
 ### Bằng dòng lệnh (nếu thích)
 ```powershell
