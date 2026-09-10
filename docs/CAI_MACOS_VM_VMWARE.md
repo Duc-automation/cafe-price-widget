@@ -46,4 +46,51 @@ Chưa có file cài. 2 hướng hợp lệ nhất:
 - Cắm iPhone vào VM đôi khi cần cài driver **Apple Mobile Device (iTunes)** trên Windows để Windows nhận iPhone trước khi passthrough.
 
 ---
-**Trạng thái:** ⏳ chưa có bộ cài macOS; chưa unlock VMware. Làm xong bước 1–2 thì báo để tôi hướng dẫn tiếp + chỉnh `.vmx` cho đúng.
+
+## 2b) Hướng dẫn download & cài từng bước (cụ thể)
+
+### Bước A — Mở khoá VMware (bắt buộc trước khi thấy macOS)
+1. Tải **VMware Unlocker** bản mới nhất (hỗ trợ VMware 17.6): GitHub **DrDonk/unlocker** → mục **Releases** → tải file zip `unlocker-x.y.z.zip`.
+   - URL: `https://github.com/DrDonk/unlocker/releases`
+2. **Đóng toàn bộ VMware** (kể cả icon khay).
+3. Giải nén → chuột phải **`win-install.cmd`** → **Run as administrator**.
+4. Kiểm tra: mở thư mục cài VMware (vd `C:\Program Files (x86)\VMware\VMware Workstation\`) thấy file **`darwin.iso`** là OK.
+5. Nếu bản unlocker không theo kịp VMware 17.6.x (macOS không hiện trong danh sách OS khi tạo VM) → thử bản unlocker mới hơn, hoặc **hạ VMware xuống bản 17.5.x** mà unlocker hỗ trợ chắc.
+
+### Bước B — Tải bộ cài macOS
+Chọn macOS **Sonoma 14.x hoặc Sequoia 15.x** (đủ mới cho Xcode hiện tại). Nguồn tải (chọn 1):
+- **Cách hợp lệ nhất:** mượn máy Mac thật → App Store tải "macOS Sonoma" → tạo `.iso`:
+  ```
+  hdiutil create -o /tmp/Sonoma.cdr -size 16g -layout SPUD -fs HFS+J
+  hdiutil attach /tmp/Sonoma.cdr -noverify -mountpoint /Volumes/install_build
+  sudo cp -R "/Applications/Install macOS Sonoma.app" /Volumes/install_build
+  hdiutil detach /Volumes/install_build
+  hdiutil convert /tmp/Sonoma.cdr -format UDTO -o /tmp/Sonoma.iso
+  ```
+- **Không có Mac:** tải bản **ISO macOS Sonoma/Sequoia** dựng sẵn. Nguồn đề xuất:
+  - GitHub **Pyenb/macOS-ISOs** (ISO + link torrent + MD5 hash, dựng bằng MIST):
+    `https://github.com/Pyenb/macOS-ISOs`
+  - Chọn **macOS Sonoma 14.7** (VD `23H124`, MD5 `26acc94a4c72f850d46bd8e0eff6e8ce`) — đủ mới cho Xcode, hỗ trợ Intel.
+  - Các file này tải bằng **torrent** → cài **qBittorrent** rồi mở link torrent. Tải xong nên kiểm tra MD5 cho khớp.
+> ⚠️ Lưu ý: file ~13–15GB, tải lâu. Ưu tiên bản tên **"Install macOS Sonoma"** đầy đủ, không phải bản "recovery only".
+
+### Bước C — Tạo máy ảo trong VMware
+1. **File → New Virtual Machine → Typical (Recommended)**.
+2. Chọn **"Apple Mac OS X"** → Version chọn **macOS 14 (Sonoma)** hoặc **macOS 15** tùy ISO.
+3. Đặt tên, chọn nơi lưu (để ổ khác **không phải OneDrive** nếu có — tránh lỗi đồng bộ!).
+4. Cấu hình đề xuất cho i7-14700KF:
+   - **CPU:** 4–6 lõi (nhớ tick bỏ "Virtualize Intel VT-x" nếu cần — thường mặc định).
+   - **RAM:** 12–16GB (tối thiểu 8GB).
+   - **Disk:** ≥ 80GB (dung lượng Xcode rất nặng). Chọn "Store as single file" cho nhanh.
+5. **Edit VM → CD/DVD (SATA)** → chọn **Use ISO image** → trỏ tới file ISO đã tải.
+6. Chỉnh file `.vmx` nếu cần (báo tôi — tôi sẽ ghi dòng cấu hình cho đúng: `smc.version`, `board-id`, `hw.model`, ...).
+7. **Power on** → boot từ ISO → cài macOS như máy thật (Disk Utility → xoá ổ → cài lên ổ đó).
+8. Sau khi vào được desktop: **VM → Install VMware Tools** (kéo thả, bàn phím, độ phân giải ổn định).
+
+### Bước D — Sau khi có macOS (build iOS)
+- App Store (trong VM) → cài **Xcode** (rất lớn, chờ lâu).
+- Terminal: `xcode-select --install`.
+- Trong thư mục `app/` của dự án: chạy `flutter doctor` kiểm tra mục Xcode/iOS OK.
+
+---
+**Trạng thái:** 🚧 đang cài (Bước A–C). Xong bước nào báo để tôi hỗ trợ tiếp (chỉnh `.vmx`, cài Xcode, kết nối iPhone qua USB passthrough).
