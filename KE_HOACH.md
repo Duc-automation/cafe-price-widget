@@ -12,6 +12,7 @@
    - *Giai đoạn 1:* làm **Android trước** trên Windows (cài APK thẳng, không cần cửa hàng, không cần tài khoản trả phí).
    - Viết code bằng **Flutter** → 1 bộ code chạy cả 2 nền tảng. Khi nào cần iOS mới build thêm.
    - Khi muốn iOS: dùng **Mac trên mây** (Codemagic / GitHub Actions chạy máy macOS) để build ra file `.ipa`, hoặc mượn/kiếm 1 Mac. Cần tài khoản Apple Developer **$99/năm** để cài lên iPhone thật (bản miễn phí chỉ 7 ngày, phải ký lại).
+   - ✅ **ĐÃ CHỌN & ĐÃ CÓ:** build bằng **GitHub Actions** (repo public ⇒ macOS runner miễn phí) → tải `.ipa` → cài bằng **Sideloadly**. Chi tiết: `docs/CI_BUILD_IOS_IPA.md`. Máy ảo macOS (`docs/CAI_MACOS_VM_VMWARE.md`) chỉ dùng khi cần Xcode GUI.
 
 2. **Widget màn hình chính là code "native"** — không framework đa nền tảng nào làm được widget cho cả 2 mà không viết phần native:
    - Android widget: Kotlin + `AppWidgetProvider`.
@@ -123,8 +124,9 @@ Luồng mỗi lần trigger: **đến giờ cấu hình & còn lượt** → g�
 - ✅ Xong khi: dùng thật vài ngày không lỗi.
 
 ### Phase 5 — iOS (làm khi SẴN SÀNG — xem mục 1)
-- [ ] Có Mac **hoặc** dùng Codemagic / GitHub Actions (macOS runner) để build.
-- [ ] Tạo widget iOS (WidgetKit) đọc App Group.
+- [x] Dùng **GitHub Actions (macOS runner)** để build `.ipa` — workflow `.github/workflows/ios-ipa.yml`, xem `docs/CI_BUILD_IOS_IPA.md`.
+- [ ] Cài `.ipa` lên iPhone bằng **Sideloadly** (Apple ID miễn phí, app sống 7 ngày/lần ký).
+- [ ] Tạo widget iOS (WidgetKit). **Lưu ý:** thêm target cần **Xcode GUI một lần**; App Group **không** dùng được với tài khoản miễn phí ⇒ cho widget **tự gọi API** thay vì đọc chung dữ liệu.
 - [ ] Background refresh + timeline; chấp nhận giới hạn của hệ điều hành.
 - [ ] Apple Developer **$99/năm** → cài qua TestFlight/AdHoc lên iPhone thật.
 - ✅ Xong khi: iPhone hiện widget giá cà phê.
