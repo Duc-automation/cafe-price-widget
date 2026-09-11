@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../models/coffee_price.dart';
 import '../services/coffee_price_api.dart';
@@ -30,6 +31,10 @@ const double _kTitleFontSize = 30;
 /// - Desktop / màn hình lớn: cố định đúng số này và căn giữa cho gọn mắt.
 /// Muốn rộng/hẹp hơn thì sửa đúng số này.
 const double _kMaxContentWidth = 460;
+
+/// Bề ngang TỐI ĐA khi màn hình NẰM NGANG (desktop hoặc điện thoại xoay ngang).
+/// Rộng hơn để đủ chỗ cho 2 cột: bảng giá bên trái | biểu đồ bên phải.
+const double _kMaxContentWidthWide = 1000;
 
 /// Màn hình chính: hiện giá cà phê lấy từ API chocaphe.vn.
 class HomeScreen extends StatefulWidget {
@@ -80,6 +85,10 @@ class _HomeScreenState extends State<HomeScreen> {
     // hết màn hình), màn hình lớn thì app chỉ rộng [_kMaxContentWidth] và nằm
     // giữa. Cả thanh tiêu đề lẫn nội dung đều nằm trong khung này nên nhìn như
     // một app điện thoại đặt giữa desktop.
+    // Màn hình nằm ngang (desktop / điện thoại xoay ngang) cần chỗ cho 2 cột
+    // nên cho khung rộng hơn; màn hình dọc giữ khung hẹp như app điện thoại.
+    final windowSize = MediaQuery.sizeOf(context);
+    final isLandscapeWindow = windowSize.width > windowSize.height;
     return ColoredBox(
       // Tô kín vùng NGOÀI khung nội dung bằng đúng màu nền của app (đen ở chế
       // độ Tối, trắng ở chế độ Sáng). Thiếu lớp này thì trên màn hình lớn,
@@ -87,7 +96,11 @@ class _HomeScreenState extends State<HomeScreen> {
       color: Theme.of(context).scaffoldBackgroundColor,
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: _kMaxContentWidth),
+          constraints: BoxConstraints(
+            maxWidth: isLandscapeWindow
+                ? _kMaxContentWidthWide
+                : _kMaxContentWidth,
+          ),
           child: Scaffold(
             appBar: AppBar(
               // Tiêu đề in hoa, đậm và TO HƠN phần còn lại của app.
@@ -161,8 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final price = _price!;
 
-    // Responsive: tự phóng to theo kích thước khung nội dung (khung này đã bị
-    // chặn bề ngang ở [_kMaxContentWidth] trên màn hình lớn).
+    // Responsive: tự phóng to theo kích thước khung nội dung.
     return LayoutBuilder(
       builder: (context, constraints) {
         // Lấy theo bề ngang khả dụng, NHƯNG không vượt quá cỡ mà bề cao còn
@@ -171,29 +183,75 @@ class _HomeScreenState extends State<HomeScreen> {
             (math.min(constraints.maxWidth, constraints.maxHeight * 0.72) / 400)
                 .clamp(1.0, 1.5)
                 .toDouble();
+
+        // Khung "nằm ngang" (desktop, hoặc điện thoại xoay ngang):
+        // 2 bảng giá bên TRÁI — biểu đồ bên PHẢI, cao bằng nhau.
+        // (Trước đây xoay ngang điện thoại thì biểu đồ bị bóp mất hút.)
+        final isLandscape = constraints.maxWidth > constraints.maxHeight;
+
+        final hero = _HeroCard(price: price, scale: scale);
+        final tables = _PriceTableCard(price: price, scale: scale);
+        final errorNote = _error == null
+            ? null
+            : Text(
+                'Lần làm mới gần nhất gặp lỗi: $_error',
+                style: TextStyle(
+                  fontSize: 12 * scale,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              );
+
+        if (isLandscape) {
+          const pad = 12.0;
+          final gap = 10 * scale;
+          // Bề ngang mỗi cột (đã trừ 2 bên padding và khoảng cách giữa).
+          final colW = (constraints.maxWidth - 2 * pad - gap) / 2;
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(pad),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  hero,
+                  if (errorNote != null) ...[SizedBox(height: 4), errorNote],
+                  SizedBox(height: 6 * scale),
+                  // Chiều cao nội tại của biểu đồ được báo = 0 nên chiều cao
+                  // của Row do BẢNG GIÁ quyết định; sau đó `stretch` kéo biểu
+                  // đồ cao ĐÚNG BẰNG bảng giá.
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(width: colW, child: tables),
+                        SizedBox(width: gap),
+                        SizedBox(
+                          width: colW,
+                          child: _ZeroIntrinsicHeight(
+                            child: SevenDayChart(scale: scale),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Màn hình DỌC (điện thoại): xếp trên - dưới như cũ.
         return Padding(
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Giá TB thu nhỏ (cả chữ lẫn ô) để nhường chỗ cho bảng + biểu đồ.
-              _HeroCard(price: price, scale: scale),
+              hero,
               SizedBox(height: 6 * scale),
               // MỘT bảng full-width duy nhất, chữ to cho người lớn tuổi.
-              _PriceTableCard(price: price, scale: scale),
-              if (_error != null) ...[
-                SizedBox(height: 4),
-                Text(
-                  'Lần làm mới gần nhất gặp lỗi: $_error',
-                  style: TextStyle(
-                    fontSize: 12 * scale,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
+              tables,
+              if (errorNote != null) ...[SizedBox(height: 4), errorNote],
               SizedBox(height: 6 * scale),
-              _SectionTitle('Biểu đồ giá 7 ngày qua', scale: scale),
-              SizedBox(height: 4),
               // Biểu đồ nở đầy chiều cao còn lại => dùng hết màn hình.
               Expanded(child: SevenDayChart(scale: scale)),
             ],
@@ -431,21 +489,24 @@ class _PriceTableCard extends StatelessWidget {
   }
 }
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.text, {this.scale = 1.0});
-
-  final String text;
-  final double scale;
+/// Bọc con của nó nhưng báo CHIỀU CAO NỘI TẠI (intrinsic) = 0.
+///
+/// Dùng bên trong [IntrinsicHeight] để chiều cao của Row do widget KHÁC quyết
+/// định (ở đây là bảng giá), còn widget này được kéo cao bằng nó.
+/// Cần lớp này vì biểu đồ (fl_chart) dùng LayoutBuilder bên trong, mà
+/// LayoutBuilder KHÔNG hỗ trợ đo intrinsic — để nó tham gia phép đo sẽ lỗi.
+class _ZeroIntrinsicHeight extends SingleChildRenderObjectWidget {
+  const _ZeroIntrinsicHeight({super.child});
 
   @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: 15 * scale,
-        fontWeight: FontWeight.w800,
-        color: Theme.of(context).colorScheme.primary,
-      ),
-    );
-  }
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderZeroIntrinsicHeight();
+}
+
+class _RenderZeroIntrinsicHeight extends RenderProxyBox {
+  @override
+  double computeMinIntrinsicHeight(double width) => 0;
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => 0;
 }
