@@ -177,17 +177,29 @@ class _HomeScreenState extends State<HomeScreen> {
     // Responsive: tự phóng to theo kích thước khung nội dung.
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Lấy theo bề ngang khả dụng, NHƯNG không vượt quá cỡ mà bề cao còn
-        // đủ chỗ cho biểu đồ (tránh biểu đồ bị bóp dẹp ở cửa sổ thấp).
-        final scale =
-            (math.min(constraints.maxWidth, constraints.maxHeight * 0.72) / 400)
-                .clamp(1.0, 1.5)
-                .toDouble();
-
         // Khung "nằm ngang" (desktop, hoặc điện thoại xoay ngang):
         // 2 bảng giá bên TRÁI — biểu đồ bên PHẢI, cao bằng nhau.
         // (Trước đây xoay ngang điện thoại thì biểu đồ bị bóp mất hút.)
         final isLandscape = constraints.maxWidth > constraints.maxHeight;
+
+        // Hệ số phóng to. Điều kiện QUAN TRỌNG NHẤT là VỪA BỀ CAO để không bị
+        // khuất phần dưới: mọi kích thước đều nhân theo `scale`, phần nội dung
+        // cố định cao `contentHeightUnits` (ở scale 1.0) nên chỉ cần
+        //     scale <= bề cao khả dụng / contentHeightUnits.
+        // Số này lấy từ thiết kế:
+        //   - NẰM NGANG: padding + ô giá TB + khe + bảng giá
+        //   - NẰM DỌC  : như trên + khe + chỗ tối thiểu cho biểu đồ
+        // (cho dư ~4% để bù viền card 1px không nhân theo scale.)
+        final contentHeightUnits = isLandscape ? 425.0 : 575.0;
+        final scale = math
+            .min(
+              constraints.maxWidth / 400,
+              constraints.maxHeight / contentHeightUnits,
+            )
+            // Sàn 0.55 (KHÔNG phải 1.0): màn hình thấp như điện thoại xoay
+            // ngang vẫn phải hiện ĐỦ mọi thứ, không phải cuộn.
+            .clamp(0.55, 1.5)
+            .toDouble();
 
         final hero = _HeroCard(price: price, scale: scale);
         final tables = _PriceTableCard(price: price, scale: scale);
