@@ -34,6 +34,15 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            // R8 thu gọn code. BẮT BUỘC kèm proguard-rules.pro, nếu không R8
+            // ăn mất class Room mà WorkManager tạo bằng reflection -> crash
+            // ngay khi mở app (xem app/proguard-rules.pro).
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }
