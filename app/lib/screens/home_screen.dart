@@ -209,31 +209,40 @@ class _HomeScreenState extends State<HomeScreen> {
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(pad),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  hero,
-                  if (errorNote != null) ...[SizedBox(height: 4), errorNote],
-                  SizedBox(height: 6 * scale),
-                  // Chiều cao nội tại của biểu đồ được báo = 0 nên chiều cao
-                  // của Row do BẢNG GIÁ quyết định; sau đó `stretch` kéo biểu
-                  // đồ cao ĐÚNG BẰNG bảng giá.
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(width: colW, child: tables),
-                        SizedBox(width: gap),
-                        SizedBox(
-                          width: colW,
-                          child: _ZeroIntrinsicHeight(
-                            child: SevenDayChart(scale: scale),
-                          ),
-                        ),
-                      ],
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Cột TRÁI: ô giá trung bình + bảng giá, xếp trên - dưới.
+                    SizedBox(
+                      width: colW,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          hero,
+                          SizedBox(height: 6 * scale),
+                          tables,
+                          if (errorNote != null) ...[
+                            SizedBox(height: 4),
+                            errorNote,
+                          ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                    SizedBox(width: gap),
+                    // Cột PHẢI: biểu đồ, cao ĐÚNG BẰNG cả cột trái (ô giá
+                    // trung bình + bảng giá).
+                    // Chiều cao nội tại của biểu đồ được báo = 0 (xem
+                    // [_ZeroIntrinsicHeight]) nên chiều cao của Row do cột
+                    // trái quyết định, rồi `stretch` kéo biểu đồ cao bằng nó.
+                    SizedBox(
+                      width: colW,
+                      child: _ZeroIntrinsicHeight(
+                        child: SevenDayChart(scale: scale),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
