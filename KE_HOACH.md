@@ -173,6 +173,14 @@ final data = jsonDecode(res.body)['data'];
 // data['updated_at']                       → "18:31 09/09/2026"
 ```
 
+**Script gọi nhanh ngoài app (đã có sẵn trong repo):**
+```powershell
+.venv\Scripts\python.exe app\tool\get_price.py              # bản ghi mới nhất (giá TB + giá từng tỉnh)
+.venv\Scripts\python.exe app\tool\get_price.py 2026-09-10   # 1 ngày cụ thể
+app\tool\get_price.ps1                                     # bản PowerShell (bảng đẹp)
+app\tool\get_price.ps1 -Date 2026-09-10 -Raw                # in JSON gốc để tự soi field
+```
+
 ---
 
 ## 6. Mẹo & bẫy (Tips & Tricks)
