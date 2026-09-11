@@ -31,6 +31,23 @@
 
   <title>gia_ca_phe</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    /*
+      Nền của TRANG theo chế độ Sáng/Tối của trình duyệt.
+      - Tránh "nháy trắng" trong lúc Flutter còn đang tải ở chế độ Tối.
+      - Cũng chính là nền hiện ra hai bên khung nội dung trên màn hình lớn.
+    */
+    html, body {
+      margin: 0;
+      background-color: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      html, body {
+        background-color: #000000;
+      }
+    }
+  </style>
 </head>
 <body>
   <!--
