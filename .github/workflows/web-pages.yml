@@ -12,6 +12,8 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  # Cần cho bước dọn các bản deploy cũ ở cuối job deploy.
+  deployments: write
 
 concurrency:
   group: pages
@@ -62,3 +64,37 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v5
+
+      # Chỉ giữ DUY NHẤT bản deploy mới nhất: xoá các deployment cũ và các
+      # artifact (bản build) của những lần deploy trước. Bước này lỗi cũng
+      # KHÔNG làm hỏng lần deploy hiện tại (continue-on-error).
+      - name: Dọn các bản deploy cũ
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          keep_dep=$(gh api "repos/$REPO/deployments?per_page=100" \
+            --jq '[.[].id] | max')
+          echo "Giữ lại deployment mới nhất: $keep_dep"
+          for id in $(gh api "repos/$REPO/deployments?per_page=100" \
+            --jq '[.[].id] | sort | reverse | .[]'); do
+            if [ "$id" = "$keep_dep" ]; then continue; fi
+            gh api --method POST "repos/$REPO/deployments/$id/statuses" \
+              -f state=inactive >/dev/null 2>&1 || true
+            gh api --method DELETE "repos/$REPO/deployments/$id" >/dev/null 2>&1 \
+              && echo "  đã xoá deployment $id" \
+              || echo "  bỏ qua deployment $id"
+          done
+
+          keep_art=$(gh api "repos/$REPO/actions/artifacts?per_page=100" \
+            --jq '[.artifacts[] | select(.name=="github-pages") | .id] | max')
+          echo "Giữ lại artifact mới nhất: $keep_art"
+          for id in $(gh api "repos/$REPO/actions/artifacts?per_page=100" \
+            --jq '[.artifacts[] | select(.name=="github-pages") | .id] | sort | reverse | .[]'); do
+            if [ "$id" = "$keep_art" ]; then continue; fi
+            gh api --method DELETE "repos/$REPO/actions/artifacts/$id" \
+              >/dev/null 2>&1 \
+              && echo "  đã xoá artifact $id" \
+              || echo "  bỏ qua artifact $id"
+          done
