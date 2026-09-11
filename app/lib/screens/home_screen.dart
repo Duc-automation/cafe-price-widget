@@ -8,6 +8,19 @@ import '../services/widget_store.dart';
 import '../widgets/seven_day_chart.dart';
 import 'schedule_screen.dart';
 
+/// Màu báo TĂNG. Nền tối cần tone nhạt hơn (400) cho đủ tương phản,
+/// nền sáng dùng tone đậm (700).
+Color _upColor(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark
+        ? Colors.green.shade400
+        : Colors.green.shade700;
+
+/// Màu báo GIẢM — cùng quy tắc đổi tone theo nền như [_upColor].
+Color _downColor(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark
+        ? Colors.red.shade400
+        : Colors.red.shade700;
+
 /// Màn hình chính: hiện giá cà phê lấy từ API chocaphe.vn.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -134,7 +147,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'Lần làm mới gần nhất gặp lỗi: $_error',
                   style: TextStyle(
-                      fontSize: 12 * scale, color: Colors.grey.shade600),
+                    fontSize: 12 * scale,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
               SizedBox(height: 6 * scale),
@@ -160,7 +175,8 @@ class _HeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = scale;
-    final color = _changeColor();
+    final cs = Theme.of(context).colorScheme;
+    final color = _changeColor(context);
     final arrow = price.isUp
         ? '▲ '
         : price.isDown
@@ -185,7 +201,7 @@ class _HeroCard extends StatelessWidget {
                     'Giá trung bình nội địa',
                     style: TextStyle(
                       fontSize: 12 * s,
-                      color: Colors.grey.shade600,
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 1),
@@ -202,8 +218,7 @@ class _HeroCard extends StatelessWidget {
                   ),
                   Text(
                     'Cập nhật: ${price.updatedAt}',
-                    style:
-                        TextStyle(fontSize: 11 * s, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 11 * s, color: cs.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -223,10 +238,10 @@ class _HeroCard extends StatelessWidget {
     );
   }
 
-  Color _changeColor() {
-    if (price.isUp) return Colors.green.shade700;
-    if (price.isDown) return Colors.red.shade700;
-    return Colors.grey.shade600;
+  Color _changeColor(BuildContext context) {
+    if (price.isUp) return _upColor(context);
+    if (price.isDown) return _downColor(context);
+    return Theme.of(context).colorScheme.onSurfaceVariant;
   }
 }
 
@@ -242,6 +257,7 @@ class _PriceTableCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = scale;
+    final cs = Theme.of(context).colorScheme;
     // Bỏ dòng "Tỷ giá USD/VND"
     final domesticItems =
         price.items.where((item) => item.market != 'Tỷ giá USD/VND').toList();
@@ -253,20 +269,21 @@ class _PriceTableCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _groupHeader('GIÁ NỘI ĐỊA (đ/kg)', s),
+            _groupHeader(context, 'GIÁ NỘI ĐỊA (đ/kg)', s),
             for (final item in domesticItems)
               _bigRow(
+                context,
                 item.market,
                 item.averagePrice,
                 item.priceChange,
                 null,
                 s,
               ),
-            Divider(height: 8 * s, thickness: 1, color: Colors.brown.shade100),
-            _groupHeader('GIÁ THẾ GIỚI', s),
-            _bigRow('Robusta London', price.robusta, '', 'USD/tấn', s,
+            Divider(height: 8 * s, thickness: 1, color: cs.outlineVariant),
+            _groupHeader(context, 'GIÁ THẾ GIỚI', s),
+            _bigRow(context, 'Robusta London', price.robusta, '', 'USD/tấn', s,
                 small: true),
-            _bigRow('Arabica NY', price.arabica, '', 'cent/lb', s,
+            _bigRow(context, 'Arabica NY', price.arabica, '', 'cent/lb', s,
                 small: true),
           ],
         ),
@@ -274,7 +291,7 @@ class _PriceTableCard extends StatelessWidget {
     );
   }
 
-  Widget _groupHeader(String text, double s) {
+  Widget _groupHeader(BuildContext context, String text, double s) {
     return Padding(
       padding: EdgeInsets.only(bottom: 3 * s),
       child: Text(
@@ -282,7 +299,7 @@ class _PriceTableCard extends StatelessWidget {
         style: TextStyle(
           fontSize: 14 * s,
           fontWeight: FontWeight.bold,
-          color: Colors.brown.shade300,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     );
@@ -291,6 +308,7 @@ class _PriceTableCard extends StatelessWidget {
   /// Một dòng bảng: tên bên trái, GIÁ đẩy sát mép phải.
   /// `small = true` cho giá thế giới (chữ nhỏ hơn, dòng gọn hơn).
   Widget _bigRow(
+    BuildContext context,
     String name,
     String? value,
     String change,
@@ -301,8 +319,10 @@ class _PriceTableCard extends StatelessWidget {
     final up = change.startsWith('+');
     final down = change.startsWith('-');
     final color = up
-        ? Colors.green.shade700
-        : (down ? Colors.red.shade700 : Colors.grey.shade600);
+        ? _upColor(context)
+        : (down
+            ? _downColor(context)
+            : Theme.of(context).colorScheme.onSurfaceVariant);
     final val = value == null || value.isEmpty
         ? '—'
         : (unit == null ? value : '$value $unit');
@@ -365,7 +385,7 @@ class _SectionTitle extends StatelessWidget {
       style: TextStyle(
         fontSize: 15 * scale,
         fontWeight: FontWeight.bold,
-        color: Colors.brown.shade300,
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
   }
