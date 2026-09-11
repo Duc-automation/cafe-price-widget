@@ -80,40 +80,46 @@ class _HomeScreenState extends State<HomeScreen> {
     // hết màn hình), màn hình lớn thì app chỉ rộng [_kMaxContentWidth] và nằm
     // giữa. Cả thanh tiêu đề lẫn nội dung đều nằm trong khung này nên nhìn như
     // một app điện thoại đặt giữa desktop.
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: _kMaxContentWidth),
-        child: Scaffold(
-          appBar: AppBar(
-            // Tiêu đề in hoa, đậm và TO HƠN phần còn lại của app.
-            // FittedBox để tự thu vừa bề ngang trên máy nhỏ.
-            title: const FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                'GIÁ CÀ PHÊ HÔM NAY',
-                style: TextStyle(
-                  fontSize: _kTitleFontSize,
-                  fontWeight: FontWeight.w900,
+    return ColoredBox(
+      // Tô kín vùng NGOÀI khung nội dung bằng đúng màu nền của app (đen ở chế
+      // độ Tối, trắng ở chế độ Sáng). Thiếu lớp này thì trên màn hình lớn,
+      // Flutter web sẽ để lộ nền TRẮNG của trang HTML hai bên khung.
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: _kMaxContentWidth),
+          child: Scaffold(
+            appBar: AppBar(
+              // Tiêu đề in hoa, đậm và TO HƠN phần còn lại của app.
+              // FittedBox để tự thu vừa bề ngang trên máy nhỏ.
+              title: const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'GIÁ CÀ PHÊ HÔM NAY',
+                  style: TextStyle(
+                    fontSize: _kTitleFontSize,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
+              centerTitle: true,
+              actions: [
+                IconButton(
+                  tooltip: 'Cập nhật tự động theo lịch',
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ScheduleScreen()),
+                  ),
+                  icon: const Icon(Icons.schedule_outlined),
+                ),
+                IconButton(
+                  tooltip: 'Làm mới',
+                  onPressed: _loading ? null : _load,
+                  icon: const Icon(Icons.refresh),
+                ),
+              ],
             ),
-            centerTitle: true,
-            actions: [
-              IconButton(
-                tooltip: 'Cập nhật tự động theo lịch',
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ScheduleScreen()),
-                ),
-                icon: const Icon(Icons.schedule_outlined),
-              ),
-              IconButton(
-                tooltip: 'Làm mới',
-                onPressed: _loading ? null : _load,
-                icon: const Icon(Icons.refresh),
-              ),
-            ],
+            body: _buildBody(),
           ),
-          body: _buildBody(),
         ),
       ),
     );
