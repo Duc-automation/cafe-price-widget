@@ -107,10 +107,14 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   ],
                 ),
                 if (_times.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 8),
-                    child: Text('Chưa có giờ nào (mặc định 07:30, 12:00, 18:00)',
-                        style: TextStyle(color: Colors.grey)),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      'Chưa có giờ nào (mặc định 07:30, 12:00, 18:00)',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   ),
                 const SizedBox(height: 16),
                 FilledButton.icon(
@@ -129,7 +133,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   'Ghi chú: Android chỉ cho chạy nền tối thiểu ~15 phút một lần. '
                   'Vì vậy giờ đặt sẽ được kích hoạt trong khoảng ± vài phút. '
                   'Hệ thống cũng có thể trì hoãn khi pin yếu.',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
