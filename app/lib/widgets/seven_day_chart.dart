@@ -68,7 +68,9 @@ class _SevenDayChartState extends State<SevenDayChart> {
                   child: Text(
                     'Giá TB nội địa 7 ngày (đ/kg)',
                     style: TextStyle(
-                        fontSize: 13 * s, fontWeight: FontWeight.bold),
+                      fontSize: 13 * s,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -151,14 +153,19 @@ class _SevenDayChartState extends State<SevenDayChart> {
                       reservedSize: 52 * s,
                       getTitlesWidget: (v, meta) => Text(
                         '${v.toInt()}đ',
-                        style: TextStyle(fontSize: 10 * s),
+                        style: TextStyle(
+                          fontSize: 10 * s,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 26,
+                      // Phải đủ cao cho nhãn ngày (fl_chart cấp ít hơn số này),
+                      // nếu không sẽ báo "RenderFlex overflowed" khi build debug.
+                      reservedSize: 34,
                       getTitlesWidget: (v, meta) {
                         // fl_chart có thể gọi cả mốc KHÔNG nguyên; nếu chỉ dùng
                         // v.toInt() thì nhiều mốc cùng trỏ về 1 ngày -> nhãn
@@ -181,7 +188,10 @@ class _SevenDayChartState extends State<SevenDayChart> {
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
                             _short(_points[i].date),
-                            style: TextStyle(fontSize: 10 * s),
+                            style: TextStyle(
+                              fontSize: 10 * s,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         );
                       },
@@ -219,7 +229,11 @@ class _SevenDayChartState extends State<SevenDayChart> {
           alignment: Alignment.centerRight,
           child: Text(
             'Nguồn: chocaphe.vn',
-            style: TextStyle(fontSize: 10 * s, color: Colors.grey.shade500),
+            style: TextStyle(
+              fontSize: 10 * s,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       ],
