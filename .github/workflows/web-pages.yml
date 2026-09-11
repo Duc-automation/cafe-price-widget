@@ -12,8 +12,9 @@ permissions:
   contents: read
   pages: write
   id-token: write
-  # Cần cho bước dọn các bản deploy cũ ở cuối job deploy.
-  deployments: write
+  # Cần cho bước dọn các bản deploy cũ ở cuối job deploy:
+  deployments: write # xoá các deployment cũ
+  actions: write # xoá các artifact (bản build Pages) cũ
 
 concurrency:
   group: pages
