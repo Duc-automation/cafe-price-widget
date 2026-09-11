@@ -12,9 +12,9 @@ void main() {
 /// để nền không bị ngả vàng/nâu ở cả chế độ Sáng lẫn Tối.
 const Color _kSeed = Color(0xFF455A64); // blue-grey 700
 
-/// Bảng màu trung tính: `neutral` làm surface gần như xám thuần
-/// (trắng ở chế độ Sáng, xám đậm ở chế độ Tối) — chỉ giữ chút màu
-/// cho app bar / nút nhấn.
+/// Bảng màu trung tính dùng cho WEB và mọi nền tảng không có Material You.
+/// Màu ở đây chỉ còn ảnh hưởng tới MÀU NHẤN (chữ tiêu đề, nút, đường biểu
+/// đồ) vì nền đã bị ép về đen/trắng ở [_buildTheme].
 ColorScheme _fallbackScheme(Brightness brightness) => ColorScheme.fromSeed(
       seedColor: _kSeed,
       brightness: brightness,
@@ -47,17 +47,50 @@ class GiaCaPheApp extends StatelessWidget {
     );
   }
 
-  ThemeData _buildTheme(ColorScheme scheme) => ThemeData(
-        useMaterial3: true,
-        colorScheme: scheme,
-        // Nền lấy thẳng từ surface của bảng màu (không bị pha màu).
-        scaffoldBackgroundColor: scheme.surface,
-        // Tắt lớp tint của M3 để app bar giữ đúng màu nền khi cuộn.
-        appBarTheme: AppBarTheme(
-          backgroundColor: scheme.surface,
-          foregroundColor: scheme.onSurface,
-          surfaceTintColor: Colors.transparent,
-          scrolledUnderElevation: 0,
+  /// Nền ĐEN TUYỆT ĐỐI ở chế độ Tối, TRẮNG TUYỆT ĐỐI ở chế độ Sáng.
+  /// Bảng màu gốc không còn được dùng cho nền nữa (nếu dùng, M3 sẽ pha
+  /// thêm sắc xám/nâu vào nền).
+  ThemeData _buildTheme(ColorScheme scheme) {
+    final dark = scheme.brightness == Brightness.dark;
+    final bg = dark ? Colors.black : Colors.white;
+    // Card nhích hơn nền một chút + viền mảnh, để các khối vẫn tách được
+    // nhau (nền đen mà card cũng đen tuyệt đối thì sẽ dính thành 1 khối).
+    final cardBg = dark ? const Color(0xFF121212) : Colors.white;
+    final line = dark ? const Color(0xFF2E2E2E) : const Color(0xFFE3E3E3);
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme.copyWith(
+        surface: bg,
+        // Các lớp "surface container" của M3 (Card, AppBar, menu... đều
+        // lấy từ chúng) phải theo nền, nếu không sẽ quay về màu xám gốc.
+        surfaceContainerLowest: bg,
+        surfaceContainerLow: cardBg,
+        surfaceContainer: cardBg,
+        surfaceContainerHigh: cardBg,
+        surfaceContainerHighest: cardBg,
+        outlineVariant: line,
+      ),
+      scaffoldBackgroundColor: bg,
+      // App bar hoà vào nền, không lấy lớp tint khi cuộn trang.
+      appBarTheme: AppBarTheme(
+        backgroundColor: bg,
+        foregroundColor: scheme.onSurface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
+      cardTheme: CardThemeData(
+        color: cardBg,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: line),
         ),
-      );
+      ),
+      dividerTheme: DividerThemeData(color: line),
+    );
+  }
 }
