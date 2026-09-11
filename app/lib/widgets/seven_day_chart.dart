@@ -160,18 +160,27 @@ class _SevenDayChartState extends State<SevenDayChart> {
                       showTitles: true,
                       reservedSize: 26,
                       getTitlesWidget: (v, meta) {
-                        final i = v.toInt();
-                        if (i < 0 || i >= _points.length) {
+                        // fl_chart có thể gọi cả mốc KHÔNG nguyên; nếu chỉ dùng
+                        // v.toInt() thì nhiều mốc cùng trỏ về 1 ngày -> nhãn
+                        // bị lặp (05/09 05/09 07/09 07/09...). Chỉ vẽ tại mốc
+                        // nguyên và đúng bước nhảy.
+                        final i = v.round();
+                        if ((v - i).abs() > 0.01 ||
+                            i < 0 ||
+                            i >= _points.length) {
                           return const SizedBox.shrink();
                         }
                         final step = (_points.length ~/ 3).clamp(1, 3);
-                        final show = i == 0 ||
-                            i == _points.length - 1 ||
-                            i % step == 0;
+                        // Ngày đầu, ngày cuối, và mỗi `step` ngày ở giữa.
+                        if (i != 0 &&
+                            i != _points.length - 1 &&
+                            i % step != 0) {
+                          return const SizedBox.shrink();
+                        }
                         return Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
-                            show ? _short(_points[i].date) : '',
+                            _short(_points[i].date),
                             style: TextStyle(fontSize: 10 * s),
                           ),
                         );
