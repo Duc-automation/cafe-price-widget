@@ -12,14 +12,24 @@ import 'schedule_screen.dart';
 /// nền sáng dùng tone đậm (700).
 Color _upColor(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
-        ? Colors.green.shade400
-        : Colors.green.shade700;
+    ? Colors.green.shade400
+    : Colors.green.shade700;
 
 /// Màu báo GIẢM — cùng quy tắc đổi tone theo nền như [_upColor].
 Color _downColor(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
-        ? Colors.red.shade400
-        : Colors.red.shade700;
+    ? Colors.red.shade400
+    : Colors.red.shade700;
+
+/// Cỡ chữ riêng cho tiêu đề "GIÁ CÀ PHÊ HÔM NAY" — CHỈ tiêu đề này to hơn
+/// các chữ còn lại trong app. Muốn to/nhỏ thêm thì sửa đúng số này.
+const double _kTitleFontSize = 30;
+
+/// Bề ngang TỐI ĐA của app.
+/// - Điện thoại (bề ngang < số này): nội dung tự giãn hết màn hình.
+/// - Desktop / màn hình lớn: cố định đúng số này và căn giữa cho gọn mắt.
+/// Muốn rộng/hẹp hơn thì sửa đúng số này.
+const double _kMaxContentWidth = 460;
 
 /// Màn hình chính: hiện giá cà phê lấy từ API chocaphe.vn.
 class HomeScreen extends StatefulWidget {
@@ -66,26 +76,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('GIÁ CÀ PHÊ HÔM NAY'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            tooltip: 'Cập nhật tự động theo lịch',
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ScheduleScreen()),
+    // Chặn bề ngang tối đa: máy nhỏ thì không ảnh hưởng gì (nội dung vẫn giãn
+    // hết màn hình), màn hình lớn thì app chỉ rộng [_kMaxContentWidth] và nằm
+    // giữa. Cả thanh tiêu đề lẫn nội dung đều nằm trong khung này nên nhìn như
+    // một app điện thoại đặt giữa desktop.
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: _kMaxContentWidth),
+        child: Scaffold(
+          appBar: AppBar(
+            // Tiêu đề in hoa, đậm và TO HƠN phần còn lại của app.
+            // FittedBox để tự thu vừa bề ngang trên máy nhỏ.
+            title: const FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                'GIÁ CÀ PHÊ HÔM NAY',
+                style: TextStyle(
+                  fontSize: _kTitleFontSize,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
             ),
-            icon: const Icon(Icons.schedule_outlined),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                tooltip: 'Cập nhật tự động theo lịch',
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ScheduleScreen()),
+                ),
+                icon: const Icon(Icons.schedule_outlined),
+              ),
+              IconButton(
+                tooltip: 'Làm mới',
+                onPressed: _loading ? null : _load,
+                icon: const Icon(Icons.refresh),
+              ),
+            ],
           ),
-          IconButton(
-            tooltip: 'Làm mới',
-            onPressed: _loading ? null : _load,
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
+          body: _buildBody(),
+        ),
       ),
-      body: _buildBody(),
     );
   }
 
@@ -125,11 +155,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final price = _price!;
 
-    // Responsive: dùng đầy màn hình — tự phóng to theo kích thước thiết bị.
+    // Responsive: tự phóng to theo kích thước khung nội dung (khung này đã bị
+    // chặn bề ngang ở [_kMaxContentWidth] trên màn hình lớn).
     return LayoutBuilder(
       builder: (context, constraints) {
+        // Lấy theo bề ngang khả dụng, NHƯNG không vượt quá cỡ mà bề cao còn
+        // đủ chỗ cho biểu đồ (tránh biểu đồ bị bóp dẹp ở cửa sổ thấp).
         final scale =
-            (math.min(constraints.maxWidth, constraints.maxHeight) / 400)
+            (math.min(constraints.maxWidth, constraints.maxHeight * 0.72) / 400)
                 .clamp(1.0, 1.5)
                 .toDouble();
         return Padding(
@@ -180,8 +213,8 @@ class _HeroCard extends StatelessWidget {
     final arrow = price.isUp
         ? '▲ '
         : price.isDown
-            ? '▼ '
-            : '';
+        ? '▼ '
+        : '';
     final change = price.priceChange.isEmpty
         ? 'Không đổi'
         : '$arrow${price.priceChange}';
@@ -201,6 +234,7 @@ class _HeroCard extends StatelessWidget {
                     'Giá trung bình nội địa',
                     style: TextStyle(
                       fontSize: 12 * s,
+                      fontWeight: FontWeight.w600,
                       color: cs.onSurfaceVariant,
                     ),
                   ),
@@ -218,7 +252,11 @@ class _HeroCard extends StatelessWidget {
                   ),
                   Text(
                     'Cập nhật: ${price.updatedAt}',
-                    style: TextStyle(fontSize: 11 * s, color: cs.onSurfaceVariant),
+                    style: TextStyle(
+                      fontSize: 11 * s,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -228,7 +266,7 @@ class _HeroCard extends StatelessWidget {
               change,
               style: TextStyle(
                 color: color,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w800,
                 fontSize: 15 * s,
               ),
             ),
@@ -259,8 +297,9 @@ class _PriceTableCard extends StatelessWidget {
     final s = scale;
     final cs = Theme.of(context).colorScheme;
     // Bỏ dòng "Tỷ giá USD/VND"
-    final domesticItems =
-        price.items.where((item) => item.market != 'Tỷ giá USD/VND').toList();
+    final domesticItems = price.items
+        .where((item) => item.market != 'Tỷ giá USD/VND')
+        .toList();
 
     return Card(
       margin: EdgeInsets.zero,
@@ -281,10 +320,24 @@ class _PriceTableCard extends StatelessWidget {
               ),
             Divider(height: 8 * s, thickness: 1, color: cs.outlineVariant),
             _groupHeader(context, 'GIÁ THẾ GIỚI', s),
-            _bigRow(context, 'Robusta London', price.robusta, '', 'USD/tấn', s,
-                small: true),
-            _bigRow(context, 'Arabica NY', price.arabica, '', 'cent/lb', s,
-                small: true),
+            _bigRow(
+              context,
+              'Robusta London',
+              price.robusta,
+              '',
+              'USD/tấn',
+              s,
+              small: true,
+            ),
+            _bigRow(
+              context,
+              'Arabica NY',
+              price.arabica,
+              '',
+              'cent/lb',
+              s,
+              small: true,
+            ),
           ],
         ),
       ),
@@ -298,7 +351,7 @@ class _PriceTableCard extends StatelessWidget {
         text,
         style: TextStyle(
           fontSize: 14 * s,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w800,
           color: Theme.of(context).colorScheme.primary,
         ),
       ),
@@ -321,8 +374,8 @@ class _PriceTableCard extends StatelessWidget {
     final color = up
         ? _upColor(context)
         : (down
-            ? _downColor(context)
-            : Theme.of(context).colorScheme.onSurfaceVariant);
+              ? _downColor(context)
+              : Theme.of(context).colorScheme.onSurfaceVariant);
     final val = value == null || value.isEmpty
         ? '—'
         : (unit == null ? value : '$value $unit');
@@ -343,7 +396,7 @@ class _PriceTableCard extends StatelessWidget {
               name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: nameSize, fontWeight: FontWeight.w600),
+              style: TextStyle(fontSize: nameSize, fontWeight: FontWeight.w700),
             ),
           ),
           SizedBox(width: 6 * s),
@@ -360,7 +413,7 @@ class _PriceTableCard extends StatelessWidget {
                 textAlign: TextAlign.right,
                 style: TextStyle(
                   fontSize: changeSize,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                   color: color,
                 ),
               ),
@@ -384,7 +437,7 @@ class _SectionTitle extends StatelessWidget {
       text,
       style: TextStyle(
         fontSize: 15 * scale,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w800,
         color: Theme.of(context).colorScheme.primary,
       ),
     );
