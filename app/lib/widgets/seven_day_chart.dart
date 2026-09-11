@@ -125,13 +125,20 @@ class _SevenDayChartState extends State<SevenDayChart> {
                 maxX: (_points.length - 1).toDouble(),
                 minY: minV.toDouble(),
                 maxY: maxV.toDouble(),
-                gridData: const FlGridData(
+                // Lưới + viền lấy màu từ theme để hiện rõ ở CẢ nền sáng và tối.
+                gridData: FlGridData(
                   drawVerticalLine: false,
                   drawHorizontalLine: true,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    strokeWidth: 1,
+                  ),
                 ),
                 borderData: FlBorderData(
                   show: true,
-                  border: Border.all(color: Colors.brown.shade100),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
                 ),
                 titlesData: FlTitlesData(
                   topTitles: const AxisTitles(
@@ -180,12 +187,17 @@ class _SevenDayChartState extends State<SevenDayChart> {
                     ],
                     isCurved: true,
                     preventCurveOverShooting: true,
-                    color: const Color(0xFFA1887F),
+                    // Đường biểu đồ dùng màu nhấn của theme (bỏ tông nâu),
+                    // tự đổi theo chế độ Sáng/Tối.
+                    color: Theme.of(context).colorScheme.primary,
                     barWidth: 3,
                     dotData: const FlDotData(show: true),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: const Color(0xFFA1887F).withValues(alpha: 0.15),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.15),
                     ),
                   ),
                 ],
