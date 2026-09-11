@@ -94,44 +94,50 @@ class _HomeScreenState extends State<HomeScreen> {
       // độ Tối, trắng ở chế độ Sáng). Thiếu lớp này thì trên màn hình lớn,
       // Flutter web sẽ để lộ nền TRẮNG của trang HTML hai bên khung.
       color: Theme.of(context).scaffoldBackgroundColor,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: isLandscapeWindow
-                ? _kMaxContentWidthWide
-                : _kMaxContentWidth,
-          ),
-          child: Scaffold(
-            appBar: AppBar(
-              // Tiêu đề in hoa, đậm và TO HƠN phần còn lại của app.
-              // FittedBox để tự thu vừa bề ngang trên máy nhỏ.
-              title: const FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  'GIÁ CÀ PHÊ HÔM NAY',
-                  style: TextStyle(
-                    fontSize: _kTitleFontSize,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-              centerTitle: true,
-              actions: [
-                IconButton(
-                  tooltip: 'Cập nhật tự động theo lịch',
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const ScheduleScreen()),
-                  ),
-                  icon: const Icon(Icons.schedule_outlined),
-                ),
-                IconButton(
-                  tooltip: 'Làm mới',
-                  onPressed: _loading ? null : _load,
-                  icon: const Icon(Icons.refresh),
-                ),
-              ],
+      // SafeArea: đẩy nội dung ra khỏi vùng bị hệ thống che — camera/nốt ruồi,
+      // "tai thỏ" (Dynamic Island), thanh trạng thái, thanh điều hướng.
+      // Khi XOAY NGANG vùng bị che nằm ở cạnh TRÁI/PHẢI nên thiếu lớp này chữ
+      // sẽ bị camera che mất. Trên web không có vùng chừa nên không ảnh hưởng.
+      child: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isLandscapeWindow
+                  ? _kMaxContentWidthWide
+                  : _kMaxContentWidth,
             ),
-            body: _buildBody(),
+            child: Scaffold(
+              appBar: AppBar(
+                // Tiêu đề in hoa, đậm và TO HƠN phần còn lại của app.
+                // FittedBox để tự thu vừa bề ngang trên máy nhỏ.
+                title: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'GIÁ CÀ PHÊ HÔM NAY',
+                    style: TextStyle(
+                      fontSize: _kTitleFontSize,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+                centerTitle: true,
+                actions: [
+                  IconButton(
+                    tooltip: 'Cập nhật tự động theo lịch',
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ScheduleScreen()),
+                    ),
+                    icon: const Icon(Icons.schedule_outlined),
+                  ),
+                  IconButton(
+                    tooltip: 'Làm mới',
+                    onPressed: _loading ? null : _load,
+                    icon: const Icon(Icons.refresh),
+                  ),
+                ],
+              ),
+              body: _buildBody(),
+            ),
           ),
         ),
       ),
