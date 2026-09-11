@@ -4,3 +4,8 @@ Thumbs.db
 
 # Sản phẩm build iOS (được CI tạo ra, không commit)
 app/Runner.ipa
+
+# Python — script phụ trợ trong app/tool và môi trường ảo ở gốc repo
+__pycache__/
+*.pyc
+.venv/
